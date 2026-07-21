@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import re
 import asyncio
 import logging
 from openai import AsyncOpenAI
@@ -203,7 +204,12 @@ async def chat_with_tools(
 
                 async for chunk in stream:
                     if chunk.choices[0].delta.content:
-                        yield f"data: {json.dumps({'content': chunk.choices[0].delta.content}, ensure_ascii=False)}\n\n"
+                        text = chunk.choices[0].delta.content
+                        # 过滤 DeepSeek 可能返回的工具调用 XML 标签
+                        text = re.sub(r'<invoke[^>]*>.*?</invoke>', '', text, flags=re.DOTALL)
+                        text = re.sub(r'<parameter[^>]*>.*?</parameter>', '', text, flags=re.DOTALL)
+                        if text.strip():
+                            yield f"data: {json.dumps({'content': text}, ensure_ascii=False)}\n\n"
 
                 yield "data: [DONE]\n\n"
                 return
