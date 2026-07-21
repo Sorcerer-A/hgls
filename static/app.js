@@ -87,22 +87,39 @@ toolBtns.forEach(btn => {
     toolBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentTool = btn.dataset.tool || null;
-    if (currentTool === 'doc_generate') loadTemplates();
+
+    // 切换工具时的联动反馈
+    if (currentTool === 'doc_summary') {
+      if (uploadedFilename) {
+        setStatus('📄 文档总结模式 — 已上传: ' + uploadedFilename);
+        addMessage('assistant', '**📄 文档总结模式**\n\n已上传文件：**' + uploadedFilename + '**\n\n直接输入"请总结这份文档"或提出具体问题即可。');
+      } else {
+        setStatus('📄 文档总结模式 — 请先上传文件');
+        addMessage('assistant', '**📄 文档总结模式**\n\n请先在左侧上传需要总结的文档（支持 .txt / .docx / .md / .pdf），然后告诉我需要总结的内容。');
+      }
+    } else if (currentTool === 'doc_generate') {
+      setStatus('📝 文案生成模式 — 选择模板');
+      loadTemplates();
+    } else if (currentTool === 'web_search') {
+      setStatus('🔍 联网检索模式 — 输入关键词');
+      addMessage('assistant', '**🔍 联网检索模式**\n\n直接输入你想搜索的内容，我会实时检索并整合回答。\n\n例如：\n- "最近三个月GitHub高星项目"\n- "Python最新版本新特性"\n- "今天科技行业新闻"');
+    } else {
+      setStatus('');
+      addMessage('assistant', '**💬 自由对话模式**\n\n你可以随时上传文档、选择模板或搜索信息，我会自动识别你的需求。');
+    }
   });
 });
 
-// ── 模板加载 ──
+// ── 模板加载（卡片式交互）──
 async function loadTemplates() {
   try {
     const resp = await fetch('/templates');
     const templates = await resp.json();
-    if (currentTool === 'doc_generate') {
-      let msg = '请选择模板并填写信息：\n\n';
-      for (const [key, t] of Object.entries(templates)) {
-        msg += `**${t.name}**（\`${key}\`）：${t.description}\n必填：${t.fields.join('、')}\n\n`;
-      }
-      addMessage('assistant', msg);
+    let msg = '**📝 文案生成模式** — 请选择一个模板，然后输入关键信息：\n\n';
+    for (const [key, t] of Object.entries(templates)) {
+      msg += `---\n### ${t.name}\n> ${t.description}\n\n**必填字段**：${t.fields.join('、')}\n\n使用方式：输入 \`${key}\` + 内容，如：\n> \`周报：本周完成了需求分析、接口开发...\`\n`;
     }
+    addMessage('assistant', msg);
   } catch (e) { console.error('加载模板失败:', e); }
 }
 
@@ -143,7 +160,7 @@ async function uploadFile(file) {
     } else {
       uploadedFilename = data.filename;
       fileStatus.textContent = `✅ ${data.filename}（${data.full_length} 字）`;
-      addMessage('assistant', `已收到文件 **${data.filename}**（${data.full_length} 字符）。\n\n预览：\n> ${data.preview}...`);
+      addMessage('assistant', `已收到文件 **${data.filename}**（${data.full_length} 字符）。\n\n预览：\n> ${data.preview}...\n\n${currentTool === 'doc_summary' ? '💡 当前在**文档总结模式**，直接输入你的问题即可，如"请总结这份文档的要点"。' : '💡 点击左侧**文档总结**可对这份文件进行摘要分析。'}`);
     }
   } catch (e) { fileStatus.textContent = '上传失败，请重试'; }
 }
