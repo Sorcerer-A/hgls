@@ -184,14 +184,14 @@ async function sendMessage() {
           if (parsed.error) { assistantDiv.innerHTML = `<span class="error">${parsed.error}</span>`; return; }
           if (parsed.status) { setStatus(parsed.status); }
           if (parsed.content) {
-            // 过滤 DeepSeek 可能混入的工具调用 XML
-            let clean = parsed.content;
-            if (clean.includes('<') && (clean.includes('invoke') || clean.includes('tool_call'))) {
-              clean = clean.replace(/<\s*\/?\s*(invoke|parameter|tool_calls)[^>]*>/gi, '');
-            }
-            if (clean.trim()) {
-              fullText += clean;
-              assistantDiv.innerHTML = renderMarkdown(fullText);
+            fullText += parsed.content;
+            // 过滤 DeepSeek 可能混入的工具调用 XML（累积后整体替换）
+            let displayText = fullText
+              .replace(/<\s*\/?\s*invoke[^>]*>/gi, '')
+              .replace(/<\s*\/?\s*parameter[^>]*>/gi, '')
+              .replace(/<\s*\/?\s*tool_calls[^>]*>/gi, '');
+            if (displayText.trim()) {
+              assistantDiv.innerHTML = renderMarkdown(displayText);
             }
           }
         } catch (e) { /* skip */ }

@@ -202,14 +202,24 @@ async def chat_with_tools(
                     stream=True,
                 )
 
+                full_content = ""
                 async for chunk in stream:
                     if chunk.choices[0].delta.content:
-                        text = chunk.choices[0].delta.content
-                        # 过滤 DeepSeek 可能返回的工具调用 XML 标签
-                        text = re.sub(r'<invoke[^>]*>.*?</invoke>', '', text, flags=re.DOTALL)
-                        text = re.sub(r'<parameter[^>]*>.*?</parameter>', '', text, flags=re.DOTALL)
-                        if text.strip():
-                            yield f"data: {json.dumps({'content': text}, ensure_ascii=False)}\n\n"
+                        full_content += chunk.choices[0].delta.content
+
+                # 过滤 XML（累积后整体过滤才能处理跨 chunk 的标签）
+                clean = re.sub(r'<\s*/?\s*invoke[^>]*>.*?<\s*/\s*invoke\s*>', '', full_content, flags=re.DOTALL)
+                clean = re.sub(r'<\s*/?\s*parameter[^>]*>.*?<\s*/\s*parameter\s*>', '', clean, flags=re.DOTALL)
+                clean = re.sub(r'<\s*/?\s*tool_calls[^>]*>.*?<\s*/\s*tool_calls\s*>', '', clean, flags=re.DOTALL)
+                clean = re.sub(r'<\s*/?\s*function_calls[^>]*>.*?<\s*/\s*function_calls\s*>', '', clean, flags=re.DOTALL)
+                clean = re.sub(r'<\s*[^>]*invoke[^>]*>.*?<\s*/\s*[^>]*invoke[^>]*\s*>', '', clean, flags=re.DOTALL)
+
+                # 流式输出清洁内容
+                if clean.strip():
+                    # 按块输出（模拟流式体验）
+                    chunk_size = 10
+                    for i in range(0, len(clean), chunk_size):
+                        yield f"data: {json.dumps({'content': clean[i:i+chunk_size]}, ensure_ascii=False)}\n\n"
 
                 yield "data: [DONE]\n\n"
                 return
