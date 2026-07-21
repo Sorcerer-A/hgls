@@ -1,0 +1,92 @@
+<h2>你的办公 AI 助手是怎样工作的？</h2>
+<p class="subtitle">用一个真实例子，30 秒看懂整个系统</p>
+
+<!-- 场景故事 -->
+<div class="section">
+  <h3>📖 场景：你上传了一份会议记录，想要一份总结</h3>
+</div>
+
+<!-- 步骤流 -->
+<div style="display:flex;flex-direction:column;gap:16px;max-width:600px;margin:0 auto;">
+
+  <!-- 步骤 1：用户 -->
+  <div style="display:flex;gap:12px;align-items:flex-start;">
+    <div style="background:#6c5ce7;color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">你</div>
+    <div style="flex:1;background:#313244;border-radius:12px 12px 12px 4px;padding:12px;">
+      <div style="color:#cdd6f4;font-size:14px;">📎 拖入 meeting.docx</div>
+      <div style="color:#a6adc8;font-size:12px;margin-top:4px;">"请帮我总结这份会议记录，列出 3 个关键决议"</div>
+    </div>
+  </div>
+
+  <!-- 步骤 2：浏览器 -->
+  <div style="display:flex;gap:12px;align-items:flex-start;margin-left:48px;">
+    <div style="background:#89b4fa;color:#1e1e2e;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:12px;">1</div>
+    <div style="flex:1;background:#1e1e2e;border:1px solid #89b4fa;border-radius:8px;padding:10px;">
+      <div style="color:#89b4fa;font-weight:600;font-size:13px;">🌐 网页界面</div>
+      <div style="color:#a6adc8;font-size:12px;">把文件和问题打包，发给后端服务器</div>
+    </div>
+  </div>
+
+  <!-- 步骤 3：解析 -->
+  <div style="display:flex;gap:12px;align-items:flex-start;margin-left:48px;">
+    <div style="background:#a6e3a1;color:#1e1e2e;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:12px;">2</div>
+    <div style="flex:1;background:#1e1e2e;border:1px solid #a6e3a1;border-radius:8px;padding:10px;">
+      <div style="color:#a6e3a1;font-weight:600;font-size:13px;">📄 文档解析器</div>
+      <div style="color:#a6adc8;font-size:12px;">识别 .docx 格式 → 提取纯文本内容</div>
+      <div style="background:#313244;border-radius:4px;padding:6px;margin-top:6px;font-size:11px;color:#f9e2af;">支持：.txt · .docx · .md · .pdf 全格式</div>
+    </div>
+  </div>
+
+  <!-- 步骤 4：Agent -->
+  <div style="display:flex;gap:12px;align-items:flex-start;margin-left:48px;">
+    <div style="background:#fab387;color:#1e1e2e;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:12px;">3</div>
+    <div style="flex:1;background:#1e1e2e;border:1px solid #fab387;border-radius:8px;padding:10px;">
+      <div style="color:#fab387;font-weight:600;font-size:13px;">🧠 智能调度中心（Agent 大脑）</div>
+      <div style="color:#a6adc8;font-size:12px;">判断你的意图 → 选择【文档总结】工具</div>
+      <div style="color:#a6adc8;font-size:12px;margin-top:4px;">附带之前对话的摘要记忆，让 AI 理解上下文</div>
+    </div>
+  </div>
+
+  <!-- 步骤 5：LLM -->
+  <div style="display:flex;gap:12px;align-items:flex-start;margin-left:48px;">
+    <div style="background:#f38ba8;color:#1e1e2e;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:12px;">4</div>
+    <div style="flex:1;background:#1e1e2e;border:1px solid #f38ba8;border-radius:8px;padding:10px;">
+      <div style="color:#f38ba8;font-weight:600;font-size:13px;">☁️ DeepSeek V4</div>
+      <div style="color:#a6adc8;font-size:12px;">读文档 → 提炼关键点 → 生成结构化总结</div>
+    </div>
+  </div>
+
+  <!-- 步骤 6：返回 -->
+  <div style="display:flex;gap:12px;align-items:flex-start;margin-left:48px;">
+    <div style="background:#cba6f7;color:#1e1e2e;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:12px;">5</div>
+    <div style="flex:1;background:#1e1e2e;border:1px solid #cba6f7;border-radius:8px;padding:10px;">
+      <div style="color:#cba6f7;font-weight:600;font-size:13px;">📤 逐字流式返回</div>
+      <div style="color:#a6adc8;font-size:12px;">像打字机一样逐字显示，不用等待</div>
+    </div>
+  </div>
+
+  <!-- 最终结果 -->
+  <div style="display:flex;gap:12px;align-items:flex-start;">
+    <div style="background:#6c5ce7;color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">AI</div>
+    <div style="flex:1;background:#1e1e2e;border:2px solid #6c5ce7;border-radius:12px 12px 4px 12px;padding:12px;">
+      <div style="color:#a6e3a1;font-weight:600;font-size:13px;">📋 会议总结</div>
+      <div style="color:#cdd6f4;font-size:12px;margin-top:4px;line-height:1.6;">
+        <strong>摘要：</strong>本次项目评审会讨论了Q3规划...<br>
+        <strong>关键决议：</strong><br>
+        ① 9月启动新版本开发<br>
+        ② 预算控制在200万以内<br>
+        ③ 指定王工为技术负责人
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:24px;padding:16px;background:#313244;border-radius:8px;text-align:center;">
+  <div style="color:#cdd6f4;font-weight:600;margin-bottom:8px;">一套代码，三个房间，直接运行</div>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;font-size:12px;color:#a6adc8;">
+    <span>🐍 Python FastAPI</span><span>+</span>
+    <span>🌐 HTML/CSS/JS</span><span>+</span>
+    <span>☁️ DeepSeek API</span><span>=</span>
+    <span style="color:#a6e3a1;">🚀 python app.py</span>
+  </div>
+</div>

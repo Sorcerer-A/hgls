@@ -1,0 +1,98 @@
+<h2>项目文件结构</h2>
+<p class="subtitle">一眼看清每个文件是干什么的</p>
+
+<div style="background:#1e1e2e;border-radius:8px;padding:14px;font-family:monospace;font-size:12px;line-height:1.6;color:#cdd6f4;margin-bottom:20px;">
+<span style="color:#6c5ce7;">office-ai-assistant/</span><br>
+├── <span style="color:#89b4fa;">app.py</span>                  ← 入口：启动服务器就这一条命令<br>
+├── <span style="color:#89b4fa;">config.py</span>               ← 配置：API Key、模型名、模板列表<br>
+├── <span style="color:#89b4fa;">requirements.txt</span>        ← 依赖：pip install -r 即可<br>
+│<br>
+├── <span style="color:#cba6f7;">agent/</span>                   ← 🧠 Agent 大脑<br>
+│   ├── <span style="color:#89b4fa;">core.py</span>              ← 对话管理 + 工具调度<br>
+│   └── <span style="color:#89b4fa;">memory.py</span>            ← 上下文记忆（滑动窗口 + 摘要）<br>
+│<br>
+├── <span style="color:#fab387;">tools/</span>                  ← 🔧 三件工具<br>
+│   ├── <span style="color:#89b4fa;">doc_parser.py</span>        ← 📄 文档解析：txt/docx/md/pdf → 纯文本<br>
+│   ├── <span style="color:#89b4fa;">doc_generator.py</span>     ← 📝 文案生成：周报/纪要/通知模板<br>
+│   └── <span style="color:#89b4fa;">web_search.py</span>        ← 🔍 联网检索：搜 → 返回 → 整合<br>
+│<br>
+├── <span style="color:#a6e3a1;">api/</span>                    ← 🌐 API 路由<br>
+│   └── <span style="color:#89b4fa;">routes.py</span>            ← /chat /upload /summarize /generate<br>
+│<br>
+└── <span style="color:#f38ba8;">static/</span>                 ← 🎨 前端（全在这）<br>
+    ├── <span style="color:#89b4fa;">index.html</span>           ← 页面结构<br>
+    ├── <span style="color:#89b4fa;">style.css</span>           ← 样式（暗色主题）<br>
+    └── <span style="color:#89b4fa;">app.js</span>             ← 交互逻辑（SSE + 文件上传）<br>
+</div>
+
+<!-- 六模块卡片 -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+  <div style="background:#313244;border-radius:8px;padding:12px;border-top:3px solid #cba6f7;">
+    <div style="color:#cba6f7;font-weight:700;">🧠 Agent 核心</div>
+    <div style="color:#a6adc8;font-size:12px;margin-top:4px;line-height:1.5;">
+      负责什么：<br>
+      • 接收用户消息，判断意图<br>
+      • 选择并调用合适工具<br>
+      • 管理对话历史 + 摘要压缩<br>
+      • 调用 DeepSeek API（Function Calling）
+    </div>
+  </div>
+
+  <div style="background:#313244;border-radius:8px;padding:12px;border-top:3px solid #fab387;">
+    <div style="color:#fab387;font-weight:700;">🔧 工具模块</div>
+    <div style="color:#a6adc8;font-size:12px;margin-top:4px;line-height:1.5;">
+      三个独立工具，各自处理一类任务：<br>
+      • 文档解析 → 统一输出纯文本<br>
+      • 文案生成 → Jinja2 模板渲染<br>
+      • 联网检索 → 搜索 + 结果清洗
+    </div>
+  </div>
+
+  <div style="background:#313244;border-radius:8px;padding:12px;border-top:3px solid #a6e3a1;">
+    <div style="color:#a6e3a1;font-weight:700;">🌐 API 路由层</div>
+    <div style="color:#a6adc8;font-size:12px;margin-top:4px;line-height:1.5;">
+      5 个端点：<br>
+      <code style="background:#45475a;padding:1px 6px;border-radius:3px;color:#f9e2af;">GET /</code> 前端页面<br>
+      <code style="background:#45475a;padding:1px 6px;border-radius:3px;color:#f9e2af;">POST /chat</code> 对话（SSE流式）<br>
+      <code style="background:#45475a;padding:1px 6px;border-radius:3px;color:#f9e2af;">POST /upload</code> 文件上传<br>
+      <code style="background:#45475a;padding:1px 6px;border-radius:3px;color:#f9e2af;">GET /templates</code> 模板列表<br>
+      <code style="background:#45475a;padding:1px 6px;border-radius:3px;color:#f9e2af;">POST /clear-memory</code> 清除记忆
+    </div>
+  </div>
+
+  <div style="background:#313244;border-radius:8px;padding:12px;border-top:3px solid #f38ba8;">
+    <div style="color:#f38ba8;font-weight:700;">🎨 前端</div>
+    <div style="color:#a6adc8;font-size:12px;margin-top:4px;line-height:1.5;">
+      单页聊天应用，包含：<br>
+      • 聊天消息列表（支持 Markdown）<br>
+      • 侧边栏：功能切换 + 文件上传<br>
+      • 流式输出动画（打字机效果）<br>
+      • 暗色主题，响应式布局
+    </div>
+  </div>
+
+  <div style="background:#313244;border-radius:8px;padding:12px;border-top:3px solid:#89b4fa;">
+    <div style="color:#89b4fa;font-weight:700;">⚙️ 配置</div>
+    <div style="color:#a6adc8;font-size:12px;margin-top:4px;line-height:1.5;">
+      config.py 统一管理：<br>
+      • DEEPSEEK_API_KEY<br>
+      • DEEPSEEK_MODEL（deepseek-chat）<br>
+      • MAX_OUTPUT_LENGTH<br>
+      • MEMORY_MAX_ROUNDS<br>
+      • TEMPLATES 模板注册表
+    </div>
+  </div>
+
+  <div style="background:#313244;border-radius:8px;padding:12px;border-top:3px solid:#a6e3a1;">
+    <div style="color:#a6e3a1;font-weight:700;">📦 技术依赖</div>
+    <div style="color:#a6adc8;font-size:12px;margin-top:4px;line-height:1.5;">
+      <code>fastapi + uvicorn</code> Web框架<br>
+      <code>openai</code> DeepSeek SDK（兼容）<br>
+      <code>python-docx + pdfplumber</code> 文档<br>
+      <code>jinja2</code> 模板引擎<br>
+      <code>httpx</code> 联网请求<br>
+      <code>markdown</code> 渲染
+    </div>
+  </div>
+</div>

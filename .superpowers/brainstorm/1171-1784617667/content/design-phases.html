@@ -1,0 +1,177 @@
+<h2>开发阶段规划</h2>
+<p class="subtitle">4 个阶段，逐步构建完整助手</p>
+
+<!-- 阶段总览 -->
+<div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:20px;">
+  <div style="background:#a6e3a1;color:#1e1e2e;padding:8px 16px;border-radius:20px;font-weight:700;font-size:13px;">P0 · 骨架</div>
+  <span style="color:#a6adc8;">→</span>
+  <div style="background:#89b4fa;color:#1e1e2e;padding:8px 16px;border-radius:20px;font-weight:700;font-size:13px;">P1 · 血肉</div>
+  <span style="color:#a6adc8;">→</span>
+  <div style="background:#fab387;color:#1e1e2e;padding:8px 16px;border-radius:20px;font-weight:700;font-size:13px;">P2 · 增强</div>
+  <span style="color:#a6adc8;">→</span>
+  <div style="background:#cba6f7;color:#1e1e2e;padding:8px 16px;border-radius:20px;font-weight:700;font-size:13px;">P3 · 打磨</div>
+</div>
+
+<!-- P0 -->
+<div class="section">
+  <h3>P0 · 项目骨架 + 基础对话</h3>
+  <div style="background:#1e1e2e;border-radius:8px;padding:12px;border-left:4px solid #a6e3a1;">
+    <div style="color:#a6e3a1;font-weight:700;font-size:13px;">目标：python app.py 能跑起来，能聊天</div>
+    <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:12px;color:#cdd6f4;">
+      <tr>
+        <td style="padding:5px 8px;width:24px;">✅</td>
+        <td style="padding:5px 8px;">创建项目结构（app.py + config.py + 各模块目录）</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;">FastAPI 启动 + 静态文件挂载 + index.html 骨架</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;">POST /chat 端点：对接 DeepSeek API，SSE 流式返回</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;">前端：聊天气泡 + 输入框 + 流式显示 + 发送按钮</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;">基础异常处理：API Key 检查、超时提示</td>
+      </tr>
+    </table>
+    <div style="background:#313244;padding:6px 10px;border-radius:4px;margin-top:8px;font-size:11px;color:#a6e3a1;">
+      🎯 里程碑：打开浏览器 → 输入 "你好" → AI 逐字回复
+    </div>
+  </div>
+</div>
+
+<!-- P1 -->
+<div class="section">
+  <h3>P1 · 核心工具实现</h3>
+  <div style="background:#1e1e2e;border-radius:8px;padding:12px;border-left:4px solid #89b4fa;">
+    <div style="color:#89b4fa;font-weight:700;font-size:13px;">目标：三个工具全部可用</div>
+    <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:12px;color:#cdd6f4;">
+      <tr>
+        <td style="padding:5px 8px;width:24px;">✅</td>
+        <td style="padding:5px 8px;"><strong>文档解析器：</strong>支持 .txt .docx .md .pdf → 统一纯文本输出</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;"><strong>文件上传：</strong>POST /upload 端点 + 前端拖拽上传区域</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;"><strong>文案生成器：</strong>3 套 Jinja2 模板 + GET /templates + 模板选择卡片 UI</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;"><strong>联网检索：</strong>DuckDuckGo + Serper 双后端 + 策略切换配置</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;"><strong>Function Calling：</strong>Agent 核心的工具定义 + 工具调度逻辑</td>
+      </tr>
+    </table>
+    <div style="background:#313244;padding:6px 10px;border-radius:4px;margin-top:8px;font-size:11px;color:#89b4fa;">
+      🎯 里程碑：上传一份会议记录 → AI 自动识别意图 → 调用文档总结工具 → 输出结构化摘要
+    </div>
+  </div>
+</div>
+
+<!-- P2 -->
+<div class="section">
+  <h3>P2 · 记忆系统 + 基础优化</h3>
+  <div style="background:#1e1e2e;border-radius:8px;padding:12px;border-left:4px solid #fab387;">
+    <div style="color:#fab387;font-weight:700;font-size:13px;">目标：E1-4 全部到位</div>
+    <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:12px;color:#cdd6f4;">
+      <tr>
+        <td style="padding:5px 8px;width:24px;">✅</td>
+        <td style="padding:5px 8px;"><strong>上下文记忆：</strong>10 轮滑动窗口 + 摘要压缩 + /clear-memory 端点</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;"><strong>输出长度限制：</strong>max_tokens 配置 + 前端截断提示</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;"><strong>异常捕获完善：</strong>6 种场景分类处理 + 友好提示文案</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;"><strong>新对话按钮：</strong>清除记忆，重置会话</td>
+      </tr>
+    </table>
+    <div style="background:#313244;padding:6px 10px;border-radius:4px;margin-top:8px;font-size:11px;color:#fab387;">
+      🎯 里程碑：连续 15 轮对话不丢失上下文 + 任意错误都有中文友好提示
+    </div>
+  </div>
+</div>
+
+<!-- P3 -->
+<div class="section">
+  <h3>P3 · 界面打磨 + 收尾</h3>
+  <div style="background:#1e1e2e;border-radius:8px;padding:12px;border-left:4px solid #cba6f7;">
+    <div style="color:#cba6f7;font-weight:700;font-size:13px;">目标：交付级品质</div>
+    <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:12px;color:#cdd6f4;">
+      <tr>
+        <td style="padding:5px 8px;width:24px;">✅</td>
+        <td style="padding:5px 8px;"><strong>独立视觉设计：</strong>调用 frontend-design skill，去大众化配色</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;"><strong>响应式适配：</strong>移动端侧栏折叠、触控友好间距</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;"><strong>Markdown 渲染：</strong>代码高亮、表格、复制按钮</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;"><strong>加载动效：</strong>打字机光标、思考中动画</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 8px;">✅</td>
+        <td style="padding:5px 8px;"><strong>文案下载：</strong>生成的周报/纪要可复制或下载为 .md</td>
+      </tr>
+    </table>
+    <div style="background:#313244;padding:6px 10px;border-radius:4px;margin-top:8px;font-size:11px;color:#cba6f7;">
+      🎯 里程碑：完整可用的企业办公 AI 助手，一条命令启动，界面精致
+    </div>
+  </div>
+</div>
+
+<!-- 时间预估 -->
+<div class="section">
+  <h3>⏱️ 预估工期（单人开发）</h3>
+  <table style="width:100%;border-collapse:collapse;font-size:13px;color:#cdd6f4;">
+    <tr style="background:#313244;">
+      <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #45475a;">阶段</th>
+      <th style="padding:8px 12px;text-align:center;border-bottom:1px solid #45475a;">内容</th>
+      <th style="padding:8px 12px;text-align:center;border-bottom:1px solid #45475a;">预估</th>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;"><span style="background:#a6e3a1;color:#1e1e2e;padding:2px 8px;border-radius:10px;font-size:11px;">P0</span></td>
+      <td style="padding:8px 12px;">项目骨架 + 基础对话</td>
+      <td style="padding:8px 12px;text-align:center;">~30 min</td>
+    </tr>
+    <tr style="background:#313244;">
+      <td style="padding:8px 12px;"><span style="background:#89b4fa;color:#1e1e2e;padding:2px 8px;border-radius:10px;font-size:11px;">P1</span></td>
+      <td style="padding:8px 12px;">三个工具 + Function Calling</td>
+      <td style="padding:8px 12px;text-align:center;">~45 min</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;"><span style="background:#fab387;color:#1e1e2e;padding:2px 8px;border-radius:10px;font-size:11px;">P2</span></td>
+      <td style="padding:8px 12px;">记忆系统 + 优化 + 异常处理</td>
+      <td style="padding:8px 12px;text-align:center;">~30 min</td>
+    </tr>
+    <tr style="background:#313244;">
+      <td style="padding:8px 12px;"><span style="background:#cba6f7;color:#1e1e2e;padding:2px 8px;border-radius:10px;font-size:11px;">P3</span></td>
+      <td style="padding:8px 12px;">界面打磨 + 响应式 + 动效</td>
+      <td style="padding:8px 12px;text-align:center;">~30 min</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;text-align:right;font-weight:700;" colspan="2">合计</td>
+      <td style="padding:8px 12px;text-align:center;font-weight:700;color:#a6e3a1;">~2-2.5 小时</td>
+    </tr>
+  </table>
+</div>

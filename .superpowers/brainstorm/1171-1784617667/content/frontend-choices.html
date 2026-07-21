@@ -1,0 +1,86 @@
+<h2>前端框架对比 — 三种方案的实际效果</h2>
+<p class="subtitle">同样的"文档总结"功能，不同框架的界面差异</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">🅰️ Streamlit</div>
+    <div class="mockup-body" style="font-family: monospace; font-size: 13px; color: #e0e0e0;">
+      <div style="background:#1a1a2e;padding:10px;border-radius:6px;margin-bottom:10px;">
+        <span style="color:#ff6b6b;">📄 轻量企业办公 AI 助手</span><br>
+        <span style="color:#888;">─────────────────────</span><br><br>
+        <span style="color:#4ecdc4;">选择功能：</span><br>
+        <span style="background:#2d2d5e;padding:2px 8px;border-radius:3px;">📄 文档总结</span>
+        <span style="padding:2px 8px;">📝 文案生成</span>
+        <span style="padding:2px 8px;">💬 自由对话</span><br><br>
+        <span style="color:#4ecdc4;">上传文档：</span><br>
+        <span style="background:#333;padding:4px 12px;border-radius:4px;border:1px dashed #666;">Browse files...</span><br><br>
+        <span style="color:#4ecdc4;">摘要结果：</span><br>
+        <span style="background:#1a1a2e;padding:8px;display:block;border-radius:4px;color:#aaa;">等待上传文档...</span>
+      </div>
+      <p style="margin:4px 0;font-size:11px;color:#888;">✅ 5分钟搭建 | ❌ 样式受限 | ❌ 布局固定</p>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">🅱️ Gradio</div>
+    <div class="mockup-body" style="font-family: monospace; font-size: 13px; color: #e0e0e0;">
+      <div style="background:#0d1117;padding:10px;border-radius:6px;margin-bottom:10px;">
+        <span style="color:#58a6ff;">🏷️ 轻量企业办公 AI 助手</span><br>
+        <span style="color:#888;">─────────────────────</span><br><br>
+        <div style="background:#161b22;padding:8px;border-radius:6px;border:1px solid #30363d;">
+          <span style="color:#c9d1d9;">📎 Input</span><br>
+          <span style="background:#0d1117;padding:4px;display:block;border-radius:3px;border:1px solid #30363d;color:#555;">Drop file here</span><br>
+          <span style="background:#238636;padding:4px 16px;display:inline-block;border-radius:4px;margin-top:6px;color:#fff;">Submit</span>
+        </div><br>
+        <div style="background:#161b22;padding:8px;border-radius:6px;border:1px solid #30363d;">
+          <span style="color:#c9d1d9;">📤 Output</span><br>
+          <span style="color:#555;">等待输入...</span>
+        </div>
+      </div>
+      <p style="margin:4px 0;font-size:11px;color:#888;">✅ 10分钟搭建 | ✅ 更多组件 | ❌ HuggingFace风格</p>
+    </div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-top:16px;">
+  <div class="mockup-header">🅲 自定义 HTML + JS（前后端分离）</div>
+  <div class="mockup-body" style="font-family: monospace; font-size: 13px; color: #e0e0e0;">
+    <div style="background:#1e1e2e;padding:10px;border-radius:6px;">
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <div style="width:50px;height:50px;background:#6c5ce7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">🤖</div>
+        <div>
+          <span style="color:#cdd6f4;font-weight:bold;">OfficeAI 助手</span><br>
+          <span style="color:#a6adc8;font-size:11px;">在线 · 智能办公</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <span style="background:#313244;padding:6px 14px;border-radius:20px;font-size:12px;color:#cdd6f4;">📄 文档总结</span>
+        <span style="background:#313244;padding:6px 14px;border-radius:20px;font-size:12px;color:#a6adc8;">📝 文案生成</span>
+        <span style="background:#313244;padding:6px 14px;border-radius:20px;font-size:12px;color:#a6adc8;">🔍 联网检索</span>
+      </div>
+      <div style="background:#181825;padding:10px;border-radius:8px;margin-bottom:8px;">
+        <span style="color:#6c5ce7;">🤖 助手</span><span style="color:#cdd6f4;"> 你好！我是 OfficeAI 助手，请上传文档或输入需求。</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input style="flex:1;background:#313244;border:none;padding:8px 14px;border-radius:8px;color:#cdd6f4;font-size:13px;" placeholder="输入消息...">
+        <span style="background:#6c5ce7;padding:8px 16px;border-radius:8px;color:#fff;font-size:13px;">发送</span>
+      </div>
+    </div>
+    <p style="margin:4px 0;font-size:11px;color:#888;">⚠️ 开发周期较长 | ✅ 完全自定义 | ✅ 类ChatGPT体验 | ✅ 易于扩展</p>
+  </div>
+</div>
+
+<div class="section">
+  <h3>选择建议</h3>
+  <div class="pros-cons">
+    <div class="pros"><h4>推荐 C（自定义 HTML+JS）</h4><ul>
+      <li>题目要求"界面友好"，自定义方案潜力最大</li>
+      <li>聊天式界面天然适合 AI 助手产品形态</li>
+      <li>前后端分离架构便于后续扩展</li>
+    </ul></div>
+    <div class="cons"><h4>如果时间极紧</h4><ul>
+      <li>Gradio 是折中选择：开发快、组件够用</li>
+      <li>Streamlit 最不适合聊天式交互</li>
+    </ul></div>
+  </div>
+</div>

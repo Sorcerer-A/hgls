@@ -2,12 +2,61 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; }
 #app { flex: 1; display: flex; }
-#chat-container { flex: 1; display: flex; flex-direction: column; max-width: 800px; margin: 0 auto; width: 100%; }
+
+/* 侧边栏 */
+#sidebar {
+  width: 200px; background: #11111b; display: flex; flex-direction: column;
+  padding: 16px 12px; gap: 10px; border-right: 1px solid #313244;
+  overflow-y: auto; flex-shrink: 0;
+}
+#sidebar-header h2 { font-size: 15px; color: #cdd6f4; }
+#new-chat-btn { background: #6c5ce7; color: #fff; border: none; border-radius: 6px; padding: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
+#new-chat-btn:hover { opacity: 0.9; }
+.nav-label { color: #585b70; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.tool-btn { background: none; border: none; color: #a6adc8; text-align: left; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.tool-btn:hover { background: #313244; }
+.tool-btn.active { background: #313244; color: #cdd6f4; font-weight: 600; border: 1px solid #6c5ce7; }
+#file-upload-area { margin-top: auto; }
+#upload-btn { background: #313244; color: #cdd6f4; border: 1px dashed #585b70; border-radius: 6px; padding: 8px; cursor: pointer; font-size: 12px; width: 100%; }
+#file-status { font-size: 11px; color: #a6adc8; margin-top: 4px; word-break: break-all; }
+
+/* 聊天区 */
+#chat-container { flex: 1; display: flex; flex-direction: column; }
 #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+#status-bar { display: none; text-align: center; padding: 6px; font-size: 11px; color: #a6adc8; background: #313244; }
 #input-area { display: flex; gap: 8px; padding: 16px; border-top: 1px solid var(--surface); }
 #user-input { flex: 1; background: var(--surface); border: 1px solid #45475a; border-radius: 8px; padding: 10px; color: var(--text); resize: none; font-family: inherit; font-size: 14px; }
 #send-btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 10px 20px; cursor: pointer; font-size: 14px; font-weight: 600; }
 #send-btn:hover { opacity: 0.9; }
-.message { max-width: 75%; padding: 10px 14px; border-radius: 10px; font-size: 14px; line-height: 1.6; }
+
+/* 消息 */
+.message { max-width: 75%; padding: 10px 14px; border-radius: 10px; font-size: 14px; line-height: 1.6; animation: fadeIn 0.3s ease; }
 .message.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 2px; }
 .message.assistant { align-self: flex-start; background: var(--surface); color: var(--text); border-bottom-left-radius: 2px; }
+.message.assistant p { margin: 4px 0; }
+.message.assistant ul, .message.assistant ol { padding-left: 18px; }
+
+/* 消息按钮 */
+.msg-btns { position: absolute; top: 4px; right: 4px; display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s; }
+.message.assistant:hover + .msg-btns, .msg-btns:hover { opacity: 1; }
+.copy-btn { background: var(--surface); border: 1px solid #45475a; color: var(--text); border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 12px; }
+.copy-btn:hover { background: #45475a; }
+
+.error { color: #f38ba8; }
+.drag-over { outline: 2px dashed var(--accent); outline-offset: -4px; }
+
+/* 动效 */
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.typing-cursor::after { content: '▊'; animation: blink 1s infinite; color: var(--accent); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 响应式 */
+#hamburger { display: none; position: fixed; top: 12px; left: 12px; z-index: 101;
+  background: var(--surface); border: none; color: var(--text); font-size: 20px;
+  padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+@media (max-width: 768px) {
+  #sidebar { position: fixed; left: -220px; top: 0; bottom: 0; z-index: 100; transition: left 0.3s ease; }
+  #sidebar.open { left: 0; }
+  #chat-container { margin-left: 0; }
+  #hamburger { display: block; }
+}

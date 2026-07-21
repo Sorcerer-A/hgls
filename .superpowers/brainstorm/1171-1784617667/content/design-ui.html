@@ -1,0 +1,111 @@
+<h2>界面布局设计</h2>
+<p class="subtitle">类 ChatGPT 的聊天式界面，聚焦办公场景</p>
+
+<!-- 整体布局 -->
+<div class="section">
+  <h3>整体布局：左右分栏</h3>
+  <div style="background:#1e1e2e;border-radius:12px;overflow:hidden;border:1px solid #45475a;">
+    <!-- 顶栏 -->
+    <div style="background:#11111b;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #313244;">
+      <div style="width:32px;height:32px;background:#6c5ce7;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;">🤖</div>
+      <div style="color:#cdd6f4;font-weight:700;font-size:14px;">OfficeAI 助手</div>
+      <div style="flex:1;"></div>
+      <div style="background:#313244;color:#a6adc8;padding:4px 10px;border-radius:12px;font-size:11px;">🟢 在线</div>
+    </div>
+    <div style="display:flex;height:420px;">
+      <!-- 左侧栏 -->
+      <div style="width:180px;background:#11111b;padding:12px;border-right:1px solid #313244;display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#6c5ce7;color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;text-align:center;cursor:pointer;">+ 新对话</div>
+        <div style="color:#a6adc8;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:4px 0;">功能</div>
+        <div style="background:#313244;color:#cdd6f4;padding:7px 10px;border-radius:6px;font-size:12px;">💬 自由对话</div>
+        <div style="color:#a6adc8;padding:7px 10px;border-radius:6px;font-size:12px;">📄 文档总结</div>
+        <div style="color:#a6adc8;padding:7px 10px;border-radius:6px;font-size:12px;">📝 文案生成</div>
+        <div style="color:#a6adc8;padding:7px 10px;border-radius:6px;font-size:12px;">🔍 联网检索</div>
+        <div style="flex:1;"></div>
+        <div style="color:#a6adc8;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:4px 0;">历史</div>
+        <div style="color:#a6adc8;padding:6px 10px;border-radius:6px;font-size:11px;">📋 Q3项目评审会...</div>
+        <div style="color:#a6adc8;padding:6px 10px;border-radius:6px;font-size:11px;">📊 本周工作总结...</div>
+        <div style="color:#a6adc8;padding:6px 10px;border-radius:6px;font-size:11px;">📢 放假通知草稿...</div>
+      </div>
+      <!-- 主聊天区 -->
+      <div style="flex:1;display:flex;flex-direction:column;background:#1e1e2e;">
+        <!-- 消息区 -->
+        <div style="flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:#6c5ce7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">🤖</div>
+            <div style="background:#313244;border-radius:8px 8px 8px 2px;padding:10px 14px;max-width:75%;font-size:12px;color:#cdd6f4;">你好！我是 OfficeAI 助手。我可以帮你：<br>📄 总结文档 · 📝 生成文案 · 🔍 联网检索<br>请选择功能或直接输入需求。</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;flex-direction:row-reverse;">
+            <div style="width:28px;height:28px;background:#89b4fa;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">👤</div>
+            <div style="background:#6c5ce7;border-radius:8px 8px 2px 8px;padding:10px 14px;max-width:75%;font-size:12px;color:#fff;">帮我总结一下今天下午的会议记录</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:#6c5ce7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">🤖</div>
+            <div style="background:#313244;border-radius:8px 8px 8px 2px;padding:10px 14px;max-width:75%;font-size:12px;color:#cdd6f4;">
+              请先上传会议记录文件，我来帮你总结。<br>
+              <span style="background:#45475a;padding:2px 8px;border-radius:4px;display:inline-block;margin-top:4px;font-size:11px;">📎 点击上传文件</span>
+            </div>
+          </div>
+        </div>
+        <!-- 输入区 -->
+        <div style="border-top:1px solid #313244;padding:12px 16px;">
+          <div style="display:flex;gap:8px;align-items:center;background:#313244;border-radius:10px;padding:6px 10px;">
+            <span style="font-size:16px;cursor:pointer;">📎</span>
+            <input style="flex:1;background:none;border:none;padding:8px 6px;color:#cdd6f4;font-size:13px;outline:none;" placeholder="输入消息... (Shift+Enter 换行)">
+            <span style="background:#6c5ce7;color:#fff;padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;">发送</span>
+          </div>
+          <div style="color:#585b70;font-size:10px;text-align:center;margin-top:6px;">OfficeAI 助手 · 输出长度限制 2000 字 · 对话记忆 10 轮</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 模板选择弹窗 -->
+<div class="section">
+  <h3>文案生成 —— 模板选择卡片</h3>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:160px;background:#1e1e2e;border:2px solid #313244;border-radius:10px;padding:16px;text-align:center;cursor:pointer;">
+      <div style="font-size:32px;margin-bottom:8px;">📊</div>
+      <div style="color:#cdd6f4;font-weight:700;font-size:13px;">周报模板</div>
+      <div style="color:#a6adc8;font-size:11px;margin-top:4px;">本周完成 · 下周计划 · 问题风险</div>
+    </div>
+    <div style="flex:1;min-width:160px;background:#1e1e2e;border:2px solid #6c5ce7;border-radius:10px;padding:16px;text-align:center;cursor:pointer;">
+      <div style="font-size:32px;margin-bottom:8px;">📋</div>
+      <div style="color:#cdd6f4;font-weight:700;font-size:13px;">会议纪要</div>
+      <div style="color:#a6adc8;font-size:11px;margin-top:4px;">议题 · 决议 · 待办事项 · 责任人</div>
+    </div>
+    <div style="flex:1;min-width:160px;background:#1e1e2e;border:2px solid #313244;border-radius:10px;padding:16px;text-align:center;cursor:pointer;">
+      <div style="font-size:32px;margin-bottom:8px;">📢</div>
+      <div style="color:#cdd6f4;font-weight:700;font-size:13px;">工作通知</div>
+      <div style="color:#a6adc8;font-size:11px;margin-top:4px;">通知对象 · 事项 · 时间 · 要求</div>
+    </div>
+  </div>
+</div>
+
+<!-- 响应式说明 -->
+<div class="section">
+  <h3>适配与主题</h3>
+  <table style="width:100%;border-collapse:collapse;font-size:13px;color:#cdd6f4;">
+    <tr>
+      <td style="padding:6px 10px;color:#89b4fa;">🎨 主题</td>
+      <td style="padding:6px 10px;">暗色主题（Catppuccin Mocha 色系），护眼、专业</td>
+    </tr>
+    <tr style="background:#313244;">
+      <td style="padding:6px 10px;color:#89b4fa;">📱 移动端</td>
+      <td style="padding:6px 10px;">宽度 < 768px 时左侧栏自动收起为汉堡菜单</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 10px;color:#89b4fa;">⌨️ 快捷键</td>
+      <td style="padding:6px 10px;">Enter 发送，Shift+Enter 换行</td>
+    </tr>
+    <tr style="background:#313244;">
+      <td style="padding:6px 10px;color:#89b4fa;">📝 消息渲染</td>
+      <td style="padding:6px 10px;">Markdown 渲染（标题/列表/粗体/代码块），带复制按钮</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 10px;color:#89b4fa;">⏳ 加载态</td>
+      <td style="padding:6px 10px;">AI 回复时显示闪烁光标 + "思考中..."，流式逐字显示</td>
+    </tr>
+  </table>
+</div>

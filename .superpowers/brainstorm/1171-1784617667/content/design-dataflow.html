@@ -1,0 +1,178 @@
+<h2>三种工具的数据流</h2>
+<p class="subtitle">同一套核心逻辑，三种不同的数据路径</p>
+
+<!-- 通用流程 -->
+<div class="section">
+  <h3>🔁 通用请求流程（所有功能共用）</h3>
+  <div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;padding:12px;background:#1e1e2e;border-radius:8px;font-size:13px;">
+    <span style="background:#6c5ce7;color:#fff;padding:6px 14px;border-radius:20px;">用户输入</span>
+    <span style="color:#a6adc8;">→</span>
+    <span style="background:#313244;color:#89b4fa;padding:6px 14px;border-radius:20px;">SSE 流式发到 /chat</span>
+    <span style="color:#a6adc8;">→</span>
+    <span style="background:#313244;color:#cba6f7;padding:6px 14px;border-radius:20px;">Agent 判断意图</span>
+    <span style="color:#a6adc8;">→</span>
+    <span style="background:#313244;color:#fab387;padding:6px 14px;border-radius:20px;">调用对应工具</span>
+    <span style="color:#a6adc8;">→</span>
+    <span style="background:#313244;color:#f38ba8;padding:6px 14px;border-radius:20px;">DeepSeek 生成</span>
+    <span style="color:#a6adc8;">→</span>
+    <span style="background:#a6e3a1;color:#1e1e2e;padding:6px 14px;border-radius:20px;">流式返回前端</span>
+  </div>
+</div>
+
+<!-- 工具 1：文档总结 -->
+<div class="section">
+  <h3>📄 工具一：文档总结</h3>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:250px;background:#313244;border-radius:8px;padding:10px;border-left:4px solid #a6e3a1;">
+      <div style="color:#a6e3a1;font-weight:700;font-size:13px;">① 前端</div>
+      <div style="color:#cdd6f4;font-size:12px;margin-top:4px;">
+        用户点击上传按钮<br>
+        → 选文件 → FormData 发到 /upload<br>
+        → 后端返回文件名 + 预览片段<br>
+        → 用户确认后发聊天消息："总结这份文档"
+      </div>
+    </div>
+    <div style="flex:1;min-width:250px;background:#313244;border-radius:8px;padding:10px;border-left:4px solid #fab387;">
+      <div style="color:#fab387;font-weight:700;font-size:13px;">② 解析</div>
+      <div style="color:#cdd6f4;font-size:12px;margin-top:4px;">
+        doc_parser 根据扩展名选择策略：<br>
+        <code style="background:#45475a;padding:1px 4px;border-radius:2px;color:#f9e2af;">.txt</code> → 直接读取<br>
+        <code style="background:#45475a;padding:1px 4px;border-radius:2px;color:#f9e2af;">.docx</code> → python-docx<br>
+        <code style="background:#45475a;padding:1px 4px;border-radius:2px;color:#f9e2af;">.md</code> → 直接读取<br>
+        <code style="background:#45475a;padding:1px 4px;border-radius:2px;color:#f9e2af;">.pdf</code> → pdfplumber<br>
+        统一输出：纯文本字符串
+      </div>
+    </div>
+    <div style="flex:1;min-width:250px;background:#313244;border-radius:8px;padding:10px;border-left:4px solid #f38ba8;">
+      <div style="color:#f38ba8;font-weight:700;font-size:13px;">③ AI 总结</div>
+      <div style="color:#cdd6f4;font-size:12px;margin-top:4px;">
+        文本 + System Prompt → DeepSeek<br>
+        Prompt 模板："请总结以下文档，输出：<br>
+        1. 一句话摘要<br>
+        2. 3-5 个关键要点<br>
+        3. 关键数据/日期（如有）"
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 工具 2：文案生成 -->
+<div class="section">
+  <h3>📝 工具二：文案生成</h3>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:250px;background:#313244;border-radius:8px;padding:10px;border-left:4px solid #89b4fa;">
+      <div style="color:#89b4fa;font-weight:700;font-size:13px;">① 选择模板</div>
+      <div style="color:#cdd6f4;font-size:12px;margin-top:4px;">
+        前端展示模板卡片：<br>
+        • 📊 周报模板<br>
+        • 📋 会议纪要模板<br>
+        • 📢 工作通知模板<br>
+        用户选择 + 输入关键信息
+      </div>
+    </div>
+    <div style="flex:1;min-width:250px;background:#313244;border-radius:8px;padding:10px;border-left:4px solid #cba6f7;">
+      <div style="color:#cba6f7;font-weight:700;font-size:13px;">② 渲染</div>
+      <div style="color:#cdd6f4;font-size:12px;margin-top:4px;">
+        Jinja2 模板填入用户信息：<br>
+        <span style="color:#a6adc8;">"本周完成：{{ tasks }}..."</span><br>
+        → 生成结构化 Prompt<br>
+        → 发送给 DeepSeek 润色扩写
+      </div>
+    </div>
+    <div style="flex:1;min-width:250px;background:#313244;border-radius:8px;padding:10px;border-left:4px solid #a6e3a1;">
+      <div style="color:#a6e3a1;font-weight:700;font-size:13px;">③ 输出</div>
+      <div style="color:#cdd6f4;font-size:12px;margin-top:4px;">
+        格式化 Markdown 文档<br>
+        前端渲染 + 提供复制按钮<br>
+        可下载为 .md 文件
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 工具 3：联网检索 -->
+<div class="section">
+  <h3>🔍 工具三：联网检索</h3>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:250px;background:#313244;border-radius:8px;padding:10px;border-left:4px solid #f9e2af;">
+      <div style="color:#f9e2af;font-weight:700;font-size:13px;">① 触发</div>
+      <div style="color:#cdd6f4;font-size:12px;margin-top:4px;">
+        Agent 识别到实时信息需求<br>
+        → 调用 web_search 工具<br>
+        → 提取搜索关键词
+      </div>
+    </div>
+    <div style="flex:1;min-width:250px;background:#313244;border-radius:8px;padding:10px;border-left:4px solid #fab387;">
+      <div style="color:#fab387;font-weight:700;font-size:13px;">② 搜索</div>
+      <div style="color:#cdd6f4;font-size:12px;margin-top:4px;">
+        DuckDuckGo / Bing Search API<br>
+        → 获取 Top 5 结果<br>
+        → 提取标题 + 摘要 + URL
+      </div>
+    </div>
+    <div style="flex:1;min-width:250px;background:#313244;border-radius:8px;padding:10px;border-left:4px solid:#f38ba8;">
+      <div style="color:#f38ba8;font-weight:700;font-size:13px;">③ 整合</div>
+      <div style="color:#cdd6f4;font-size:12px;margin-top:4px;">
+        搜索结果 + 用户问题 → DeepSeek<br>
+        → AI 整合为自然语言回答<br>
+        → 末尾附信息来源链接
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 记忆压缩流程 -->
+<div class="section">
+  <h3>🧠 上下文记忆机制</h3>
+  <div style="background:#1e1e2e;border-radius:8px;padding:14px;font-size:13px;">
+    <table style="width:100%;border-collapse:collapse;color:#cdd6f4;">
+      <tr>
+        <td style="padding:6px 10px;color:#89b4fa;width:120px;">正常对话</td>
+        <td style="padding:6px 10px;">保留最近 <strong>10 轮</strong>完整对话 + 前面对话的摘要</td>
+      </tr>
+      <tr style="background:#313244;">
+        <td style="padding:6px 10px;color:#fab387;">触发压缩</td>
+        <td style="padding:6px 10px;">当总轮数 > 10 → 取最早的 5 轮 → 发给 DeepSeek 压缩为 1-2 句摘要</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 10px;color:#a6e3a1;">压缩结果</td>
+        <td style="padding:6px 10px;">摘要存入 memory，旧消息归档。每次请求附带"历史摘要 + 最近 10 轮"</td>
+      </tr>
+      <tr style="background:#313244;">
+        <td style="padding:6px 10px;color:#f38ba8;">清空记忆</td>
+        <td style="padding:6px 10px;">用户点击"新对话"按钮 → POST /clear-memory → 重置所有状态</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- 异常处理 -->
+<div class="section">
+  <h3>🛡️ 异常处理设计</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
+    <div style="background:#313244;border-radius:6px;padding:8px;">
+      <span style="color:#f38ba8;">📎 文件太大</span><br>
+      <span style="color:#a6adc8;">> 5MB → 前端拦截 + 提示</span>
+    </div>
+    <div style="background:#313244;border-radius:6px;padding:8px;">
+      <span style="color:#f38ba8;">📄 不支持的格式</span><br>
+      <span style="color:#a6adc8;">→ 返回友好提示 + 支持的格式列表</span>
+    </div>
+    <div style="background:#313244;border-radius:6px;padding:8px;">
+      <span style="color:#f38ba8;">☁️ API 调用失败</span><br>
+      <span style="color:#a6adc8;">→ 重试 1 次 → 仍失败则提示用户稍后重试</span>
+    </div>
+    <div style="background:#313244;border-radius:6px;padding:8px;">
+      <span style="color:#f38ba8;">⏱️ 响应超时</span><br>
+      <span style="color:#a6adc8;">→ 30 秒超时 → "回答生成中，请稍候..."</span>
+    </div>
+    <div style="background:#313244;border-radius:6px;padding:8px;">
+      <span style="color:#f38ba8;">🔑 配置缺失</span><br>
+      <span style="color:#a6adc8;">→ 启动时检查 API Key，缺失则提示配置</span>
+    </div>
+    <div style="background:#313244;border-radius:6px;padding:8px;">
+      <span style="color:#f38ba8;">📏 输出过长</span><br>
+      <span style="color:#a6adc8;">→ max_tokens 限制 + 前端截断提示</span>
+    </div>
+  </div>
+</div>

@@ -5,16 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OfficeAI 助手</title>
 <link rel="stylesheet" href="/static/style.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 </head>
 <body>
+<button id="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
 <div id="app">
-  <div id="chat-container">
+  <aside id="sidebar">
+    <div id="sidebar-header">
+      <h2>🤖 OfficeAI</h2>
+    </div>
+    <button id="new-chat-btn">+ 新对话</button>
+    <nav id="tool-nav">
+      <div class="nav-label">功能</div>
+      <button class="tool-btn active" data-tool="">💬 自由对话</button>
+      <button class="tool-btn" data-tool="doc_summary">📄 文档总结</button>
+      <button class="tool-btn" data-tool="doc_generate">📝 文案生成</button>
+      <button class="tool-btn" data-tool="web_search">🔍 联网检索</button>
+    </nav>
+    <div id="file-upload-area">
+      <div class="nav-label">文件上传</div>
+      <input type="file" id="file-input" accept=".txt,.docx,.md,.pdf" hidden>
+      <button id="upload-btn">📎 选择文件</button>
+      <div id="file-status"></div>
+    </div>
+  </aside>
+  <main id="chat-container">
     <div id="messages"></div>
+    <div id="status-bar"></div>
     <div id="input-area">
       <textarea id="user-input" placeholder="输入消息... (Enter 发送, Shift+Enter 换行)" rows="2"></textarea>
       <button id="send-btn">发送</button>
     </div>
-  </div>
+  </main>
 </div>
 <script src="/static/app.js"></script>
 </body>

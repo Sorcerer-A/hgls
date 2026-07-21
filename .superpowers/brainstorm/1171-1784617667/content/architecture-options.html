@@ -1,0 +1,104 @@
+<h2>三种架构方案对比</h2>
+<p class="subtitle">基于 DeepSeek V4 + 自定义 HTML/JS 前端的技术路线</p>
+
+<div class="section">
+  <h3>方案 A：FastAPI + 原生 HTML/CSS/JS（⭐ 推荐）</h3>
+  <div style="background:#1e1e2e;padding:16px;border-radius:8px;margin-bottom:12px;">
+    <pre style="margin:0;color:#cdd6f4;font-size:12px;line-height:1.6;">
+ ┌─────────────────────────────────────────────────┐
+ │              浏览器 (HTML/CSS/JS)                 │
+ │  ┌──────────┐  ┌──────────┐  ┌───────────────┐  │
+ │  │ 聊天面板  │  │ 文件上传  │  │ 模板选择/预览  │  │
+ │  └────┬─────┘  └────┬─────┘  └───────┬───────┘  │
+ │       └──────────────┼───────────────┘           │
+ │                      │ SSE / Fetch                │
+ └──────────────────────┼───────────────────────────┘
+                        │
+ ┌──────────────────────┼───────────────────────────┐
+ │               FastAPI (Python)                    │
+ │  ┌───────────────────┴──────────────────────┐    │
+ │  │              API 路由层                    │    │
+ │  │   /chat  /upload  /summarize  /generate   │    │
+ │  └────┬──────────────────────────────┬──────┘    │
+ │       │                              │           │
+ │  ┌────┴──────────┐    ┌──────────────┴──────┐    │
+ │  │  Agent 核心    │    │  工具模块            │    │
+ │  │  · 对话管理    │◄──►│  · 文档解析器        │    │
+ │  │  · 记忆压缩    │    │  · 模板引擎          │    │
+ │  │  · 工具调度    │    │  · 搜索客户端        │    │
+ │  └───────┬───────┘    └─────────────────────┘    │
+ │          │                                       │
+ │  ┌───────┴───────┐                               │
+ │  │  DeepSeek API  │                               │
+ │  └───────────────┘                               │
+ └──────────────────────────────────────────────────┘</pre>
+  </div>
+  <div class="pros-cons">
+    <div class="pros"><h4>优势</h4><ul>
+      <li>单一技术栈，部署简单（一个服务全搞定）</li>
+      <li>Python 生态对 LLM/文档处理最友好</li>
+      <li>SSE 原生支持流式输出，聊天体验好</li>
+      <li>无需 Node.js 构建步骤，直接运行</li>
+    </ul></div>
+    <div class="cons"><h4>劣势</h4><ul>
+      <li>纯 JS 前端无组件化，代码组织需自律</li>
+      <li>复杂 UI 交互需要更多手写代码</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>方案 B：Flask + Jinja2 + 少量 JS</h3>
+  <div style="background:#1e1e2e;padding:16px;border-radius:8px;margin-bottom:12px;">
+    <pre style="margin:0;color:#cdd6f4;font-size:12px;line-height:1.6;">
+ ┌──────────────────────────────────────────────────┐
+ │              浏览器                               │
+ │  页面切换 ──► 全页刷新 / 少量 fetch               │
+ └────────────────────┬─────────────────────────────┘
+                      │ 传统 HTTP (POST/GET)
+ ┌────────────────────┼─────────────────────────────┐
+ │            Flask (Python + Jinja2)                │
+ │  ┌─────────────────┴──────────────────┐          │
+ │  │  路由 → 视图函数 → 渲染模板         │          │
+ │  └────────────────────────────────────┘          │
+ │  问题：不利于聊天式 UI，大量页面刷新体验差       │
+ └──────────────────────────────────────────────────┘</pre>
+  </div>
+  <div class="pros-cons">
+    <div class="pros"><h4>优势</h4><ul><li>最传统的 Python Web 方案，上手零门槛</li></ul></div>
+    <div class="cons"><h4>劣势</h4><ul>
+      <li>全页刷新体验差，不适合聊天应用</li>
+      <li>SSE/流式输出支持不如 FastAPI</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>方案 C：FastAPI + Vue/React SPA（过重，不推荐）</h3>
+  <div style="background:#1e1e2e;padding:16px;border-radius:8px;margin-bottom:12px;">
+    <pre style="margin:0;color:#cdd6f4;font-size:12px;line-height:1.6;">
+ ┌──────────────────┐     ┌──────────────────┐
+ │  Vue/React SPA   │────►│  FastAPI 后端     │
+ │  (独立开发服务器) │     │  (API 服务器)     │
+ │  :5173           │     │  :8000            │
+ └──────────────────┘     └──────────────────┘
+  需要：Node.js 构建、CORS 配置、双服务部署</pre>
+  </div>
+  <div class="pros-cons">
+    <div class="pros"><h4>优势</h4><ul><li>组件化开发，大型项目维护性好</li></ul></div>
+    <div class="cons"><h4>劣势</h4><ul>
+      <li>双服务部署复杂，违反"轻量"原则</li>
+      <li>需要 Node.js + Python 双环境</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>FastAPI + 原生 HTML/CSS/JS</h3>
+      <p>轻量、高效、一流聊天体验。最符合项目"轻量"定位</p>
+    </div>
+  </div>
+</div>
