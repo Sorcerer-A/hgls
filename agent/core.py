@@ -150,35 +150,46 @@ async def chat_with_tools(
             tools_param = [t for t in TOOLS if t["function"]["name"] == target_tool]
 
     retry_count = 0
+    max_tool_rounds = 5  # 防止无限工具调用循环
 
     while retry_count <= MAX_RETRIES:
         try:
-            # 第一次调用：让模型决定是否调用工具
-            response = await client.chat.completions.create(
-                model=DEEPSEEK_MODEL,
-                messages=messages,
-                tools=tools_param,
-                max_tokens=MAX_OUTPUT_TOKENS,
-                temperature=TEMPERATURE,
-            )
+            # 支持多轮工具调用
+            for _ in range(max_tool_rounds):
+                response = await client.chat.completions.create(
+                    model=DEEPSEEK_MODEL,
+                    messages=messages,
+                    tools=tools_param,
+                    max_tokens=MAX_OUTPUT_TOKENS,
+                    temperature=TEMPERATURE,
+                )
 
-            choice = response.choices[0]
+                choice = response.choices[0]
 
-            # 如果模型要调用工具
-            if choice.message.tool_calls:
-                tool_call = choice.message.tool_calls[0]
-                tool_name = tool_call.function.name
-                arguments = json.loads(tool_call.function.arguments)
+                # 模型要调用工具 → 执行 → 继续循环
+                if choice.message.tool_calls:
+                    for tool_call in choice.message.tool_calls:
+                        tool_name = tool_call.function.name
+                        arguments = json.loads(tool_call.function.arguments)
 
-                yield f"data: {json.dumps({'status': f'正在执行: {tool_name}'}, ensure_ascii=False)}\n\n"
+                        yield f"data: {json.dumps({'status': f'正在执行: {tool_name}'}, ensure_ascii=False)}\n\n"
 
-                tool_result = await execute_tool(tool_name, arguments, session_files, session_id)
+                        tool_result = await execute_tool(tool_name, arguments, session_files, session_id)
 
-                # 将工具结果回传模型
-                messages.append({"role": "assistant", "tool_calls": [tool_call.model_dump()]})
-                messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": tool_result})
+                        messages.append({
+                            "role": "assistant",
+                            "tool_calls": [tool_call.model_dump()],
+                        })
+                        messages.append({
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "content": tool_result,
+                        })
 
-                # 第二次调用：模型基于工具结果生成最终回复
+                    # 继续循环，让模型处理工具结果
+                    continue
+
+                # 无工具调用 → 流式输出最终答案
                 stream = await client.chat.completions.create(
                     model=DEEPSEEK_MODEL,
                     messages=messages,
@@ -191,20 +202,11 @@ async def chat_with_tools(
                     if chunk.choices[0].delta.content:
                         yield f"data: {json.dumps({'content': chunk.choices[0].delta.content}, ensure_ascii=False)}\n\n"
 
-            else:
-                # 无工具调用，重新以流模式调用保证流式体验一致
-                stream = await client.chat.completions.create(
-                    model=DEEPSEEK_MODEL,
-                    messages=messages,
-                    max_tokens=MAX_OUTPUT_TOKENS,
-                    temperature=TEMPERATURE,
-                    stream=True,
-                )
-                async for chunk in stream:
-                    if chunk.choices[0].delta.content:
-                        yield f"data: {json.dumps({'content': chunk.choices[0].delta.content}, ensure_ascii=False)}\n\n"
+                yield "data: [DONE]\n\n"
+                return
 
-            yield "data: [DONE]\n\n"
+            # 超过最大工具调用轮数
+            yield f"data: {json.dumps({'error': '搜索轮次过多，请简化问题后重试'}, ensure_ascii=False)}\n\n"
             return
 
         except Exception as e:
