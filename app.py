@@ -25,8 +25,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.on_event("startup")
 async def startup():
-    from agent.memory import cleanup_old
-    await cleanup_old()
+    from agent.memory import MemoryManager
+    await MemoryManager.cleanup_old()
     logger.info("OfficeAI 助手已启动: http://localhost:8000")
 
 
