@@ -66,10 +66,13 @@ settingsBtn.addEventListener('click', () => { loadSettings(); settingsOverlay.cl
 settingsClose.addEventListener('click', () => settingsOverlay.classList.remove('show'));
 settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) settingsOverlay.classList.remove('show'); });
 
+let _savedSettings = {};  // 用于比较变更
+
 async function loadSettings() {
   try {
     const resp = await fetch('/settings');
     const s = await resp.json();
+    _savedSettings = { ...s };
     document.getElementById('cfg-base').value = s.api_base || '';
     document.getElementById('cfg-key').value = s.api_key || '';
     document.getElementById('cfg-model').value = s.model || '';
@@ -89,7 +92,15 @@ settingsSave.addEventListener('click', async () => {
     await fetch('/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) });
     applyTheme(theme);
     settingsOverlay.classList.remove('show');
-    addMessage('assistant', '✅ 设置已保存。\n\n' + (settings.api_key ? 'API 配置已更新，新对话将使用新的模型配置。' : ''));
+    // 只在 API 配置实际变更时提示
+    const apiChanged = (settings.api_key && settings.api_key !== _savedSettings.api_key)
+      || (settings.api_base && settings.api_base !== _savedSettings.api_base)
+      || (settings.model && settings.model !== _savedSettings.model);
+    if (apiChanged) {
+      setStatus('✅ API 配置已更新，下次对话生效');
+      setTimeout(() => setStatus(''), 3000);
+    }
+    _savedSettings = { ...settings };
   } catch (e) { alert('保存失败'); }
 });
 
