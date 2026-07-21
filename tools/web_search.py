@@ -25,23 +25,55 @@ class SearchBackend(ABC):
         ...
 
 
-class DuckDuckGoBackend(SearchBackend):
+class BingBackend(SearchBackend):
+    """Bing 搜索（中国大陆可用，DDG 被屏蔽）。通过 HTML 抓取搜索结果。"""
+
     async def search(self, query: str) -> list[SearchResult]:
         import asyncio
-        from duckduckgo_search import DDGS
+        import re
+        import httpx
 
         def _sync_search():
-            return list(DDGS().text(query, max_results=WEB_SEARCH_MAX_RESULTS))
+            results = []
+            try:
+                client = httpx.Client(follow_redirects=True, timeout=WEB_SEARCH_TIMEOUT)
+                resp = client.get(
+                    "https://www.bing.com/search",
+                    params={"q": query, "count": WEB_SEARCH_MAX_RESULTS},
+                    headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                        "Accept-Language": "zh-CN,zh;q=0.9",
+                    },
+                )
+                if resp.status_code != 200:
+                    return results
 
-        results = await asyncio.to_thread(_sync_search)
-        return [
-            SearchResult(
-                title=r.get("title", ""),
-                url=r.get("href", ""),
-                snippet=r.get("body", ""),
-            )
-            for r in results
-        ]
+                html = resp.text
+                # 提取搜索结果块（带任意额外属性）
+                blocks = re.split(r'<li class="b_algo"[^>]*>', html)[1:WEB_SEARCH_MAX_RESULTS + 1]
+
+                for block in blocks:
+                    # 提取标题和链接（h2 > a）
+                    title_match = re.search(r'<a[^>]*href="(https?://[^"]+)"[^>]*>(.+?)</a>', block)
+                    if not title_match:
+                        continue
+                    url = title_match.group(1)
+                    title = re.sub(r'<[^>]+>', '', title_match.group(2))
+
+                    # 提取摘要
+                    snippet_match = re.search(r'<p[^>]*>(.+?)</p>', block, re.DOTALL)
+                    snippet = ""
+                    if snippet_match:
+                        snippet = re.sub(r'<[^>]+>', '', snippet_match.group(1)).strip()
+                        snippet = re.sub(r'\s+', ' ', snippet)
+
+                    results.append(SearchResult(title=title, url=url, snippet=snippet))
+            except Exception:
+                pass
+            return results
+
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, _sync_search)
 
 
 class SerperBackend(SearchBackend):
@@ -83,8 +115,8 @@ class SearchManager:
         self._fallback_active = False
 
     def _create_backend(self, name: str) -> SearchBackend:
-        if name == "duckduckgo":
-            return DuckDuckGoBackend()
+        if name == "duckduckgo" or name == "bing":
+            return BingBackend()
         elif name == "serper":
             return SerperBackend()
         else:
