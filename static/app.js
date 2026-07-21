@@ -183,7 +183,17 @@ async function sendMessage() {
           const parsed = JSON.parse(raw);
           if (parsed.error) { assistantDiv.innerHTML = `<span class="error">${parsed.error}</span>`; return; }
           if (parsed.status) { setStatus(parsed.status); }
-          if (parsed.content) { fullText += parsed.content; assistantDiv.innerHTML = renderMarkdown(fullText); }
+          if (parsed.content) {
+            // 过滤 DeepSeek 可能混入的工具调用 XML
+            let clean = parsed.content;
+            if (clean.includes('<') && (clean.includes('invoke') || clean.includes('tool_call'))) {
+              clean = clean.replace(/<\s*\/?\s*(invoke|parameter|tool_calls)[^>]*>/gi, '');
+            }
+            if (clean.trim()) {
+              fullText += clean;
+              assistantDiv.innerHTML = renderMarkdown(fullText);
+            }
+          }
         } catch (e) { /* skip */ }
       }
     }
