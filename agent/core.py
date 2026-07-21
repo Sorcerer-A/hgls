@@ -151,16 +151,18 @@ async def chat_with_tools(
             tools_param = [t for t in TOOLS if t["function"]["name"] == target_tool]
 
     retry_count = 0
-    max_tool_rounds = 5  # 防止无限工具调用循环
+    max_tool_rounds = 2  # 最多 2 轮工具调用，防止无限搜索循环
 
     while retry_count <= MAX_RETRIES:
         try:
-            # 支持多轮工具调用
-            for _ in range(max_tool_rounds):
+            for round_num in range(max_tool_rounds):
+                # 最后一轮不传 tools，强制模型作答
+                current_tools = tools_param if round_num < max_tool_rounds - 1 else None
+
                 response = await client.chat.completions.create(
                     model=DEEPSEEK_MODEL,
                     messages=messages,
-                    tools=tools_param,
+                    tools=current_tools,
                     max_tokens=MAX_OUTPUT_TOKENS,
                     temperature=TEMPERATURE,
                 )
