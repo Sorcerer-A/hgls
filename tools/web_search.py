@@ -49,25 +49,42 @@ class BingBackend(SearchBackend):
                     return results
 
                 html = resp.text
+
+                # HTML 实体解码
+                html = html.replace("&ensp;", " ").replace("&#0183;", " · ")
+                html = re.sub(r'&#\d+;', ' ', html)
+                html = html.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", '"')
+
                 # 提取搜索结果块（带任意额外属性）
                 blocks = re.split(r'<li class="b_algo"[^>]*>', html)[1:WEB_SEARCH_MAX_RESULTS + 1]
 
                 for block in blocks:
-                    # 提取标题和链接（h2 > a）
-                    title_match = re.search(r'<a[^>]*href="(https?://[^"]+)"[^>]*>(.+?)</a>', block)
-                    if not title_match:
+                    # 提取链接
+                    url_match = re.search(r'<a[^>]*href="(https?://[^"]+)"', block)
+                    if not url_match:
                         continue
-                    url = title_match.group(1)
-                    title = re.sub(r'<[^>]+>', '', title_match.group(2))
+                    url = url_match.group(1)
 
-                    # 提取摘要
-                    snippet_match = re.search(r'<p[^>]*>(.+?)</p>', block, re.DOTALL)
+                    # 提取标题：找到 <a href="..."> 到 </a> 之间的内容，剥离所有 HTML 标签
+                    a_match = re.search(r'<a[^>]*href="https?://[^"]+"[^>]*>(.*?)</a>', block, re.DOTALL)
+                    title = ""
+                    if a_match:
+                        title = re.sub(r'<[^>]+>', '', a_match.group(1)).strip()
+                        title = re.sub(r'\s+', ' ', title)
+
+                    # 提取摘要：找到 <p> 或 class 含 caption/snippet 的标签
                     snippet = ""
-                    if snippet_match:
-                        snippet = re.sub(r'<[^>]+>', '', snippet_match.group(1)).strip()
-                        snippet = re.sub(r'\s+', ' ', snippet)
+                    for tag in ['p', 'div']:
+                        snippet_match = re.search(rf'<{tag}[^>]*>(.+?)</{tag}>', block, re.DOTALL)
+                        if snippet_match:
+                            raw = re.sub(r'<[^>]+>', '', snippet_match.group(1))
+                            raw = re.sub(r'\s+', ' ', raw).strip()
+                            if len(raw) > 30:  # 排除太短的匹配
+                                snippet = raw
+                                break
 
-                    results.append(SearchResult(title=title, url=url, snippet=snippet))
+                    if title or snippet:
+                        results.append(SearchResult(title=title or url, url=url, snippet=snippet))
             except Exception:
                 pass
             return results
