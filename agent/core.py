@@ -52,8 +52,8 @@ TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "search_web",
-            "description": "联网搜索实时信息，用于回答需要最新数据的问题",
+            "name": "web_search_20250305",
+            "description": "联网搜索实时信息。DeepSeek 服务端自动执行搜索并返回结果，用于获取最新资讯、新闻、数据等。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -94,10 +94,9 @@ async def execute_tool(tool_name: str, arguments: dict, session_files: dict[str,
         prompt = generate_prompt(template_key, fields)
         return f"请根据以下模板要求生成文案：\n\n{prompt}"
 
-    elif tool_name == "search_web":
-        query = arguments.get("query", "")
-        from tools.web_search import search_web
-        return await search_web(query)
+    elif tool_name == "web_search_20250305":
+        # DeepSeek 服务端自动执行搜索，返回占位即可
+        return "[Search executed by DeepSeek server]"
 
     return f"未知工具: {tool_name}"
 
@@ -144,7 +143,7 @@ async def chat_with_tools(
         tool_map = {
             "doc_summary": "summarize_document",
             "doc_generate": "generate_document",
-            "web_search": "search_web",
+            "web_search": "web_search_20250305",
         }
         target_tool = tool_map.get(force_tool)
         if target_tool:
