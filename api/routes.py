@@ -154,3 +154,31 @@ async def clear_memory(req: ClearMemoryRequest):
     memory = MemoryManager(req.session_id)
     await memory.clear()
     return JSONResponse({"message": "会话记忆已清除"})
+
+
+class SettingsRequest(BaseModel):
+    api_base: str = ""
+    api_key: str = ""
+    model: str = ""
+    theme: str = "amber"
+
+
+@router.get("/settings")
+async def get_user_settings():
+    """读取用户设置"""
+    from agent.memory import get_settings
+    return JSONResponse(await get_settings())
+
+
+@router.post("/settings")
+async def save_user_settings(req: SettingsRequest):
+    """保存用户设置（API 配置 + 主题）"""
+    from agent.memory import save_settings
+    settings = {
+        "api_base": req.api_base,
+        "api_key": req.api_key,
+        "model": req.model,
+        "theme": req.theme,
+    }
+    await save_settings(settings)
+    return JSONResponse({"message": "设置已保存", "theme": req.theme})

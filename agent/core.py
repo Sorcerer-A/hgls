@@ -92,6 +92,26 @@ async def chat_with_tools(
 ):
     """流式对话（含 Function Calling）。返回 async generator of SSE data strings。"""
 
+    # ── 读取用户自定义 API 配置 ──
+    from agent.memory import get_settings
+    user_settings = await get_settings()
+    api_key = user_settings.get("api_key") or DEEPSEEK_API_KEY
+    api_base = user_settings.get("api_base") or DEEPSEEK_BASE_URL
+    api_model = user_settings.get("model") or DEEPSEEK_MODEL
+
+    # ── 模板卡片消息转换 ──
+    if message.startswith("template_key:"):
+        lines = message.split("\n", 1)
+        tpl_key = lines[0].replace("template_key:", "").strip()
+        actual_message = lines[1] if len(lines) > 1 else ""
+        from tools.doc_generator import get_template_info
+        info = get_template_info(tpl_key)
+        field_names = info.get("fields", [])
+        parts = actual_message.split("\n")
+        fields = {name: (parts[i] if i < len(parts) else "") for i, name in enumerate(field_names)}
+        message = f"请按{info.get('name', tpl_key)}模板生成文案。字段内容：\n" + "\n".join(f"- {k}：{v}" for k, v in fields.items())
+        force_tool = "doc_generate"
+
     # ── 强制工具选择的边界检查 ──
     if force_tool == "doc_summary":
         has_file = session_id in session_files and session_files[session_id]
@@ -100,13 +120,7 @@ async def chat_with_tools(
             yield "data: [DONE]\n\n"
             return
 
-    if force_tool == "doc_generate":
-        if "模板" not in message and "周报" not in message and "会议" not in message and "通知" not in message:
-            yield f"data: {json.dumps({'content': '请先选择文案模板（周报/会议纪要/工作通知），并提供关键信息。'}, ensure_ascii=False)}\n\n"
-            yield "data: [DONE]\n\n"
-            return
-
-    # ── 联网检索：不走 Function Calling，直接搜索 + 注入结果 ──
+    # ── 联网检索：直接搜索 + 注入结果 ──
     if force_tool == "web_search":
         yield f"data: {json.dumps({'status': '正在联网搜索...'}, ensure_ascii=False)}\n\n"
         from tools.web_search import search_web
@@ -114,8 +128,8 @@ async def chat_with_tools(
         message = f"{message}\n\n[以下是联网搜索结果]\n{search_results}\n\n请基于以上搜索结果回答问题，并注明信息来源。"
 
     client = AsyncOpenAI(
-        api_key=DEEPSEEK_API_KEY,
-        base_url=DEEPSEEK_BASE_URL,
+        api_key=api_key,
+        base_url=api_base,
         timeout=REQUEST_TIMEOUT,
     )
 
@@ -144,7 +158,7 @@ async def chat_with_tools(
                 current_tools = tools_param if round_num < max_tool_rounds - 1 else None
 
                 response = await client.chat.completions.create(
-                    model=DEEPSEEK_MODEL,
+                    model=api_model,
                     messages=messages,
                     tools=current_tools,
                     max_tokens=MAX_OUTPUT_TOKENS,
@@ -178,7 +192,7 @@ async def chat_with_tools(
 
                 # 无工具调用 → 流式输出最终答案
                 stream = await client.chat.completions.create(
-                    model=DEEPSEEK_MODEL,
+                    model=api_model,
                     messages=messages,
                     max_tokens=MAX_OUTPUT_TOKENS,
                     temperature=TEMPERATURE,

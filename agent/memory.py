@@ -153,3 +153,38 @@ class MemoryManager:
         """清理超过 TTL 的非活跃会话。"""
         cutoff = (datetime.utcnow() - timedelta(days=MEMORY_TTL_DAYS)).isoformat()
         await _db_execute("DELETE FROM sessions WHERE active=0 AND updated_at < ?", (cutoff,))
+
+
+# ── 用户设置 ──────────────────────────────────────────────────
+
+async def get_settings() -> dict:
+    """读取用户设置。"""
+    await _db_execute("""
+        CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL DEFAULT ''
+        )
+    """)
+    row = await _db_fetchone("SELECT value FROM settings WHERE key='user_settings'")
+    if row and row[0]:
+        return json.loads(row[0])
+    return {
+        "api_base": "",
+        "api_key": "",
+        "model": "",
+        "theme": "amber",
+    }
+
+
+async def save_settings(settings: dict):
+    """保存用户设置。"""
+    await _db_execute("""
+        CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL DEFAULT ''
+        )
+    """)
+    await _db_execute(
+        "INSERT OR REPLACE INTO settings (key, value) VALUES ('user_settings', ?)",
+        (json.dumps(settings, ensure_ascii=False),),
+    )
