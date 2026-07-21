@@ -207,12 +207,9 @@ async def chat_with_tools(
                     if chunk.choices[0].delta.content:
                         full_content += chunk.choices[0].delta.content
 
-                # 过滤 XML（累积后整体过滤才能处理跨 chunk 的标签）
-                clean = re.sub(r'<\s*/?\s*invoke[^>]*>.*?<\s*/\s*invoke\s*>', '', full_content, flags=re.DOTALL)
-                clean = re.sub(r'<\s*/?\s*parameter[^>]*>.*?<\s*/\s*parameter\s*>', '', clean, flags=re.DOTALL)
-                clean = re.sub(r'<\s*/?\s*tool_calls[^>]*>.*?<\s*/\s*tool_calls\s*>', '', clean, flags=re.DOTALL)
-                clean = re.sub(r'<\s*/?\s*function_calls[^>]*>.*?<\s*/\s*function_calls\s*>', '', clean, flags=re.DOTALL)
-                clean = re.sub(r'<\s*[^>]*invoke[^>]*>.*?<\s*/\s*[^>]*invoke[^>]*\s*>', '', clean, flags=re.DOTALL)
+                # 过滤 XML（只要包含 invoke/tool_calls/parameter/function_calls 的标签全部移除）
+                clean = re.sub(r'<[^>]*\b(?:invoke|tool_calls|parameter|function_calls)\b[^>]*>.*?</[^>]*\b(?:invoke|tool_calls|parameter|function_calls)\b[^>]*>', '', full_content, flags=re.DOTALL)
+                clean = re.sub(r'<[^>]*\b(?:invoke|tool_calls|parameter|function_calls)\b[^>]*/\s*>', '', clean, flags=re.DOTALL)
 
                 # 流式输出清洁内容
                 if clean.strip():
