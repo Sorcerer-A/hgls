@@ -1,6 +1,5 @@
 from __future__ import annotations
 import json
-import re
 import asyncio
 import logging
 from openai import AsyncOpenAI
@@ -50,23 +49,6 @@ TOOLS = [
             },
         },
     },
-    {
-        "type": "function",
-        "function": {
-            "name": "web_search_20250305",
-            "description": "联网搜索实时信息。DeepSeek 服务端自动执行搜索并返回结果，用于获取最新资讯、新闻、数据等。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "搜索关键词",
-                    },
-                },
-                "required": ["query"],
-            },
-        },
-    },
 ]
 
 # ── Tool Executor ──────────────────────────────────────────────────
@@ -94,11 +76,6 @@ async def execute_tool(tool_name: str, arguments: dict, session_files: dict[str,
         fields = arguments.get("fields", {})
         prompt = generate_prompt(template_key, fields)
         return f"请根据以下模板要求生成文案：\n\n{prompt}"
-
-    elif tool_name == "web_search_20250305":
-        query = arguments.get("query", "")
-        from tools.web_search import search_web
-        return await search_web(query)
 
     return f"未知工具: {tool_name}"
 
@@ -129,6 +106,13 @@ async def chat_with_tools(
             yield "data: [DONE]\n\n"
             return
 
+    # ── 联网检索：不走 Function Calling，直接搜索 + 注入结果 ──
+    if force_tool == "web_search":
+        yield f"data: {json.dumps({'status': '正在联网搜索...'}, ensure_ascii=False)}\n\n"
+        from tools.web_search import search_web
+        search_results = await search_web(message)
+        message = f"{message}\n\n[以下是联网搜索结果]\n{search_results}\n\n请基于以上搜索结果回答问题，并注明信息来源。"
+
     client = AsyncOpenAI(
         api_key=DEEPSEEK_API_KEY,
         base_url=DEEPSEEK_BASE_URL,
@@ -145,7 +129,6 @@ async def chat_with_tools(
         tool_map = {
             "doc_summary": "summarize_document",
             "doc_generate": "generate_document",
-            "web_search": "web_search_20250305",
         }
         target_tool = tool_map.get(force_tool)
         if target_tool:
@@ -202,21 +185,9 @@ async def chat_with_tools(
                     stream=True,
                 )
 
-                full_content = ""
                 async for chunk in stream:
                     if chunk.choices[0].delta.content:
-                        full_content += chunk.choices[0].delta.content
-
-                # 过滤 XML（只要包含 invoke/tool_calls/parameter/function_calls 的标签全部移除）
-                clean = re.sub(r'<[^>]*\b(?:invoke|tool_calls|parameter|function_calls)\b[^>]*>.*?</[^>]*\b(?:invoke|tool_calls|parameter|function_calls)\b[^>]*>', '', full_content, flags=re.DOTALL)
-                clean = re.sub(r'<[^>]*\b(?:invoke|tool_calls|parameter|function_calls)\b[^>]*/\s*>', '', clean, flags=re.DOTALL)
-
-                # 流式输出清洁内容
-                if clean.strip():
-                    # 按块输出（模拟流式体验）
-                    chunk_size = 10
-                    for i in range(0, len(clean), chunk_size):
-                        yield f"data: {json.dumps({'content': clean[i:i+chunk_size]}, ensure_ascii=False)}\n\n"
+                        yield f"data: {json.dumps({'content': chunk.choices[0].delta.content}, ensure_ascii=False)}\n\n"
 
                 yield "data: [DONE]\n\n"
                 return
