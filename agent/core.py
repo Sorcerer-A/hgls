@@ -95,8 +95,9 @@ async def execute_tool(tool_name: str, arguments: dict, session_files: dict[str,
         return f"请根据以下模板要求生成文案：\n\n{prompt}"
 
     elif tool_name == "web_search_20250305":
-        # DeepSeek 服务端自动执行搜索，返回占位即可
-        return "[Search executed by DeepSeek server]"
+        query = arguments.get("query", "")
+        from tools.web_search import search_web
+        return await search_web(query)
 
     return f"未知工具: {tool_name}"
 
