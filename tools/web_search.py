@@ -103,7 +103,7 @@ class SerperBackend(SearchBackend):
         async with httpx.AsyncClient(timeout=WEB_SEARCH_TIMEOUT) as client:
             resp = await client.post(
                 "https://google.serper.dev/search",
-                json={"q": query, "num": WEB_SEARCH_MAX_RESULTS},
+                json={"q": query, "num": WEB_SEARCH_MAX_RESULTS, "tbs": "qdr:w"},
                 headers={"X-API-KEY": SERPER_API_KEY},
             )
             resp.raise_for_status()
