@@ -198,7 +198,7 @@ async def list_sessions():
         conn = _get_conn()
         rows = conn.execute(
             "SELECT session_id, messages_json, file_name, updated_at "
-            "FROM sessions WHERE active=1 "
+            "FROM sessions "
             "ORDER BY updated_at DESC LIMIT 30"
         ).fetchall()
 
