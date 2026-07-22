@@ -37,6 +37,7 @@ function renderMarkdown(text) {
 // ── Messages ──
 function addMessage(role, text) {
   const wrapper = document.createElement('div');
+  wrapper.className = 'msg-wrap';
   wrapper.style.position = 'relative';
   const div = document.createElement('div');
   div.className = `message ${role}`;
