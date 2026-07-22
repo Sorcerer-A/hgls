@@ -434,8 +434,7 @@ async function sendMessage() {
 
 // ── New Chat ────────────────────────────────
 
-newChatBtn.addEventListener('click', async () => {
-  try { await fetch('/clear-memory', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: SESSION_ID }) }); } catch (e) {}
+newChatBtn.addEventListener('click', () => {
   const newId = crypto.randomUUID();
   localStorage.setItem('officeai_session', newId);
   location.reload();
