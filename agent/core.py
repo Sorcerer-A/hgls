@@ -133,9 +133,12 @@ async def chat_with_tools(
     # ── 联网检索：直接搜索 + 注入结果 ──
     if force_tool == "web_search":
         yield f"data: {json.dumps({'status': '正在联网搜索...'}, ensure_ascii=False)}\n\n"
+        from datetime import datetime as dt
         from tools.web_search import search_web
-        search_results = await search_web(message)
-        message = f"{message}\n\n[以下是联网搜索结果]\n{search_results}\n\n请基于以上搜索结果回答问题，并注明信息来源。"
+        today = dt.now().strftime("%Y年%m月%d日")
+        search_query = f"{message} {today}"
+        search_results = await search_web(search_query)
+        message = f"今天是{today}。{message}\n\n[以下是联网搜索结果（已包含当前日期 {today}）]\n{search_results}\n\n请基于以上搜索结果回答问题，务必注明信息的具体日期和来源。如果搜索结果中包含的日期与今天（{today}）不符，请以搜索结果中的内容为准并标注日期。"
 
     client = AsyncOpenAI(
         api_key=api_key,
