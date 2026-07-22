@@ -147,6 +147,35 @@ async def chat_with_tools(
     messages.extend(history)
     messages.append({"role": "user", "content": message})
 
+    # ── 自由对话 / 搜索结果：直接流式，不走 Function Calling（省一次 API 调用）──
+    no_tools_needed = not force_tool or force_tool == "web_search"
+    if no_tools_needed:
+        retry_count = 0
+        while retry_count <= MAX_RETRIES:
+            try:
+                stream = await client.chat.completions.create(
+                    model=api_model,
+                    messages=messages,
+                    max_tokens=MAX_OUTPUT_TOKENS,
+                    temperature=TEMPERATURE,
+                    stream=True,
+                )
+                async for chunk in stream:
+                    if chunk.choices[0].delta.content:
+                        yield f"data: {json.dumps({'content': chunk.choices[0].delta.content}, ensure_ascii=False)}\n\n"
+                yield "data: [DONE]\n\n"
+                return
+            except Exception as e:
+                retry_count += 1
+                error_str = str(e).lower()
+                if "401" in error_str or "400" in error_str:
+                    yield f"data: {json.dumps({'error': 'API Key 无效，请检查配置'}, ensure_ascii=False)}\n\n"
+                    return
+                if retry_count > MAX_RETRIES:
+                    yield f"data: {json.dumps({'error': '服务暂时不可用，请稍后重试'}, ensure_ascii=False)}\n\n"
+                    return
+                await asyncio.sleep(RETRY_BASE_DELAY * (2 ** (retry_count - 1)))
+
     # 决定 tools 参数
     tools_param = TOOLS
     if force_tool:
