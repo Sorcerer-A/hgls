@@ -34,6 +34,52 @@ function renderMarkdown(text) {
   return text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
 }
 
+// ── 操作按钮（SVG 图标，简洁统一）──
+function createActionButtons(div, wrapper) {
+  const btnGroup = document.createElement('div');
+  btnGroup.className = 'msg-btns';
+
+  const makeBtn = (svg, title, onclick) => {
+    const b = document.createElement('button');
+    b.className = 'action-btn';
+    b.innerHTML = svg;
+    b.title = title;
+    b.onclick = onclick;
+    return b;
+  };
+
+  btnGroup.appendChild(makeBtn(
+    '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>',
+    '编辑',
+    () => enterEditMode(div, wrapper)
+  ));
+
+  btnGroup.appendChild(makeBtn(
+    '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="5" y="1" width="6" height="3" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>',
+    '复制',
+    () => {
+      const t = div.dataset.rawText || div.textContent || '';
+      navigator.clipboard.writeText(t).catch(() => {});
+    }
+  ));
+
+  btnGroup.appendChild(makeBtn(
+    '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" fill="currentColor"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" fill="currentColor"/></svg>',
+    '下载 .md',
+    () => {
+      const t = div.dataset.rawText || div.textContent || '';
+      const blob = new Blob([t], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url;
+      a.download = `officeai-${new Date().toISOString().slice(0,10)}.md`;
+      a.click(); URL.revokeObjectURL(url);
+    }
+  ));
+
+  wrapper.appendChild(btnGroup);
+  return btnGroup;
+}
+
 // ── Messages ──
 function addMessage(role, text) {
   const wrapper = document.createElement('div');
@@ -42,28 +88,12 @@ function addMessage(role, text) {
   const div = document.createElement('div');
   div.className = `message ${role}`;
   div.innerHTML = renderMarkdown(text);
-  div.dataset.rawText = text;  // 保存原始纯文本用于编辑
+  div.dataset.rawText = text;
   wrapper.appendChild(div);
 
-  if (role === 'assistant' && text) {
-    const btnGroup = document.createElement('div');
-    btnGroup.className = 'msg-btns';
-    // 编辑按钮
-    const editBtn = document.createElement('button');
-    editBtn.className = 'copy-btn'; editBtn.textContent = '✏️'; editBtn.title = '编辑';
-    editBtn.onclick = () => enterEditMode(div, wrapper);
-    // 复制按钮
-    const copyBtn = document.createElement('button');
-    copyBtn.className = 'copy-btn'; copyBtn.textContent = '📋'; copyBtn.title = '复制';
-    copyBtn.onclick = () => { navigator.clipboard.writeText(div.dataset.rawText || text).then(() => { copyBtn.textContent = '✅'; setTimeout(() => copyBtn.textContent = '📋', 2000); }).catch(() => { copyBtn.textContent = '❌'; }); };
-    // 下载按钮
-    const downloadBtn = document.createElement('button');
-    downloadBtn.className = 'copy-btn'; downloadBtn.textContent = '⬇️'; downloadBtn.title = '下载 .md';
-    downloadBtn.onclick = () => { const t = div.dataset.rawText || text; const blob = new Blob([t], { type: 'text/markdown' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `officeai-${new Date().toISOString().slice(0,10)}.md`; a.click(); URL.revokeObjectURL(url); };
-    btnGroup.appendChild(editBtn);
-    btnGroup.appendChild(copyBtn);
-    btnGroup.appendChild(downloadBtn);
-    wrapper.appendChild(btnGroup);
+  // AI 消息始终带操作按钮（无论 text 是否为空，流式消息后续填充）
+  if (role === 'assistant') {
+    createActionButtons(div, wrapper);
   }
   messagesEl.appendChild(wrapper);
   messagesEl.scrollTop = messagesEl.scrollHeight;
