@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OfficeAI 助手</title>
-<link rel="stylesheet" href="/static/style.css?v=15">
+<link rel="stylesheet" href="/static/style.css?v=16">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 </head>
@@ -26,6 +26,12 @@
       <button class="tool-btn" data-tool="web_search">🔍 联网检索</button>
     </nav>
     <div id="template-cards"></div>
+    <div id="history-section">
+      <div class="nav-label history-toggle" style="cursor:pointer;user-select:none;" onclick="toggleHistory()">
+        对话历史 ▾
+      </div>
+      <div id="history-list"></div>
+    </div>
     <div id="file-upload-area">
       <div class="nav-label">文件上传</div>
       <input type="file" id="file-input" accept=".txt,.docx,.md,.pdf" hidden>
@@ -85,6 +91,6 @@
   </div>
 </div>
 
-<script src="/static/app.js?v=15"></script>
+<script src="/static/app.js?v=16"></script>
 </body>
 </html>

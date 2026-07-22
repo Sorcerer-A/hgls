@@ -186,6 +186,54 @@ async def clear_memory(req: ClearMemoryRequest):
     return JSONResponse({"message": "会话记忆已清除"})
 
 
+@router.get("/sessions")
+async def list_sessions():
+    """返回所有活跃会话列表（预览信息）"""
+    from agent.memory import _db_fetchone
+    import asyncio
+
+    # 获取所有活跃会话
+    from agent.memory import _db_lock, _get_conn
+    async with _db_lock:
+        conn = _get_conn()
+        rows = conn.execute(
+            "SELECT session_id, messages_json, file_name, updated_at "
+            "FROM sessions WHERE active=1 "
+            "ORDER BY updated_at DESC LIMIT 30"
+        ).fetchall()
+
+    sessions = []
+    for row in rows:
+        sid, msgs_json, file_name, updated = row
+        msgs = json.loads(msgs_json) if msgs_json else []
+        # 提取第一条用户消息作为预览
+        preview = ""
+        msg_count = len(msgs) // 2
+        for m in msgs:
+            if m.get("role") == "user":
+                preview = m["content"][:50]
+                break
+        sessions.append({
+            "session_id": sid,
+            "preview": preview or "(空会话)",
+            "message_count": msg_count,
+            "has_file": bool(file_name),
+            "updated_at": updated,
+        })
+    return JSONResponse(sessions)
+
+
+@router.post("/sessions/switch")
+async def switch_session(req: ClearMemoryRequest):
+    """切换到指定会话，返回其消息历史。将当前会话的文件内容复制到目标会话。"""
+    from agent.memory import MemoryManager
+    memory = MemoryManager(req.session_id)
+    await memory._ensure_session()
+    messages = await memory.get_messages()
+    summary = await memory.get_summary()
+    return JSONResponse({"messages": messages, "summary": summary})
+
+
 class SettingsRequest(BaseModel):
     api_base: str = ""
     api_key: str = ""

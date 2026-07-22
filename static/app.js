@@ -446,6 +446,61 @@ newChatBtn.addEventListener('click', async () => {
 sendBtn.addEventListener('click', sendMessage);
 inputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 
+// ── 对话历史 ──────────────────────────────
+
+let historyVisible = true;
+
+function toggleHistory() {
+  historyVisible = !historyVisible;
+  document.getElementById('history-list').style.display = historyVisible ? 'block' : 'none';
+  document.querySelector('.history-toggle').textContent = historyVisible ? '对话历史 ▾' : '对话历史 ▸';
+}
+
+async function loadHistory() {
+  try {
+    const resp = await fetch('/sessions');
+    const sessions = await resp.json();
+    const list = document.getElementById('history-list');
+    list.innerHTML = '';
+    sessions.forEach(s => {
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      if (s.session_id === SESSION_ID) item.classList.add('active');
+      item.innerHTML = `
+        <div class="history-preview">${escapeHtml(s.preview)}</div>
+        <div class="history-meta">${s.message_count} 轮 · ${s.updated_at ? s.updated_at.slice(5,10) : ''}${s.has_file ? ' · 📎' : ''}</div>
+      `;
+      item.addEventListener('click', () => switchToSession(s.session_id));
+      list.appendChild(item);
+    });
+  } catch (e) { /* ignore */ }
+}
+
+async function switchToSession(sid) {
+  if (sid === SESSION_ID) return;
+  try {
+    setStatus('切换会话中...');
+    const resp = await fetch('/sessions/switch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sid }),
+    });
+    const data = await resp.json();
+    // 更新 SESSION_ID 并刷新
+    localStorage.setItem('officeai_session', sid);
+    location.reload();
+  } catch (e) { setStatus('切换失败'); }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// 初始化加载历史
+loadHistory();
+
 // ── Welcome ─────────────────────────────────
 
 addMessage('assistant', '你好！我是 OfficeAI 助手。\n\n- 📄 上传文档，我来帮你总结\n- 📝 点击「文案生成」选择模板生成周报/纪要/通知\n- 🔍 点击「联网检索」搜索实时信息\n\n⚙️ 点击左上角齿轮图标配置 API 和主题。');
