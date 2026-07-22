@@ -14,7 +14,7 @@ const C = {
 const sh = () => ({ type: "outer", blur: 3, offset: 1.5, angle: 135, color: "000000", opacity: 0.08 });
 const amber = (s, x, y) => s.addShape(pres.shapes.RECTANGLE, { x, y, w: 0.6, h: 0.03, fill: { color: C.amber } });
 const title = (s, txt) => { s.addText(txt, { x: 0.5, y: 0.25, w: 9, h: 0.55, fontSize: 26, fontFace: "Georgia", color: C.navy, bold: true, margin: 0 }); amber(s, 0.5, 0.8); };
-const footer = (s, num) => { s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 5.37, w: 10, h: 0.255, fill: { color: C.navy } }); s.addText("OfficeAI · " + num, { x: 9.0, y: 5.37, w: 0.7, h: 0.255, fontSize: 8, color: C.muted, valign: "middle", align: "center" }); };
+const footer = (s, num) => { s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 5.25, w: 10, h: 0.375, fill: { color: C.navy } }); s.addText("OfficeAI · " + num, { x: 9.0, y: 5.25, w: 0.7, h: 0.375, fontSize: 8, color: C.muted, valign: "middle", align: "center" }); };
 const card = (s, x, y, w, h) => s.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { color: C.white }, shadow: sh() });
 const img = (s, x, y, w, h, label) => { s.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { color: C.gray }, line: { color: "BBBBBB", width: 1, dashType: "dash" } }); s.addText("[ 截图：" + label + " ]", { x, y, w, h, fontSize: 12, color: C.muted, align: "center", valign: "middle" }); };
 const bullet = (s, x, y, w, h, lines) => { const arr = lines.map((l, i) => ({ text: l, options: { bullet: true, breakLine: i < lines.length - 1 } })); s.addText(arr, { x, y, w, h, fontSize: 13, color: C.text, lineSpacing: 28, valign: "top" }); };
@@ -42,9 +42,9 @@ themes.forEach((t, i) => {
 });
 pg.addShape(pres.shapes.RECTANGLE, { x: 7.3, y: 4.1, w: 0, h: 0, fill: { color: C.white } }); // spacer
 
-pg.addText("交互亮点", { x: 0.5, y: 4.3, w: 3, h: 0.35, fontSize: 14, color: C.navy, bold: true, margin: 0 });
-card(pg, 0.5, 4.7, 9.1, 0.55);
-pg.addText("流式打字机 · 弹跳圆点等待动效 + 进度条 · 消息编辑复制下载 (SVG 图标) · 拖拽上传 · 768px 响应式 · 工具切换防刷屏", { x: 0.7, y: 4.7, w: 8.7, h: 0.55, fontSize: 12, color: C.text, valign: "middle" });
+pg.addText("交互亮点", { x: 0.5, y: 4.25, w: 3, h: 0.3, fontSize: 14, color: C.navy, bold: true, margin: 0 });
+card(pg, 0.5, 4.55, 9.1, 0.55);
+pg.addText("流式打字机 · 弹跳圆点等待动效 + 进度条 · 消息编辑复制下载 (SVG 图标) · 拖拽上传 · 768px 响应式 · 工具切换防刷屏", { x: 0.7, y: 4.55, w: 8.7, h: 0.55, fontSize: 12, color: C.text, valign: "middle" });
 
 // ═══ 3: Doc Summary ═══
 pg = pres.addSlide(); pg.background = { color: C.cream }; footer(pg, 3);
@@ -63,7 +63,7 @@ bullet(pg, 6.65, 1.6, 2.8, 2.1, [
 ]);
 
 // Bottom: 2 tech cards
-card(pg, 0.5, 4.1, 4.3, 1.1);
+card(pg, 0.5, 4.0, 4.3, 1.1);
 pg.addText("文件上下文注入", { x: 0.65, y: 4.15, w: 4, h: 0.28, fontSize: 12, color: C.navy, bold: true, margin: 0 });
 pg.addText("上传 → SQLite sessions.file_text\n关键词检测自动注入到用户消息\n重启不丢失，内存缓存加速", { x: 0.65, y: 4.45, w: 4, h: 0.7, fontSize: 12, color: C.text, lineSpacing: 24 });
 
