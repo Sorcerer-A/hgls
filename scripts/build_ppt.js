@@ -126,25 +126,26 @@ s4.addShape(pres.shapes.RECTANGLE, { x: 0.7, y: 0.95, w: 0.8, h: 0.04, fill: { c
 
 // Architecture layers
 const layers = [
-  { label: "浏览器", desc: "HTML/CSS/JS  ·  SSE 流式  ·  5 套主题  ·  模板卡片", color: C.navy, top: 1.2, h: 0.7 },
-  { label: "FastAPI 路由层", desc: "/chat  /upload  /templates  /settings  /clear-memory", color: C.slate, top: 2.1, h: 0.7 },
-  { label: "Agent 核心", desc: "Function Calling  ·  工具调度  ·  流式输出  ·  指数退避重试", color: C.blue, top: 3.0, h: 0.7 },
-  { label: "工具模块  +  记忆系统", desc: "文档解析器  |  Jinja2 文案生成  |  Serper/Bing 检索  |  SQLite 记忆", color: C.green, top: 3.9, h: 0.7 },
-  { label: "DeepSeek V4 API", desc: "OpenAI 兼容 SDK  ·  动态配置  ·  用户可切换任意大模型", color: C.amber, top: 4.8, h: 0.7 },
+  { label: "浏览器", desc: "HTML/CSS/JS  ·  SSE 流式  ·  5 套主题  ·  模板卡片", color: C.navy, top: 1.2, h: 0.55 },
+  { label: "FastAPI 路由层", desc: "/chat  /upload  /templates  /settings  /clear-memory", color: C.slate, top: 1.92, h: 0.55 },
+  { label: "Agent 核心", desc: "Function Calling  ·  工具调度  ·  流式输出  ·  指数退避重试", color: C.blue, top: 2.64, h: 0.55 },
+  { label: "工具模块  +  记忆系统", desc: "文档解析器  |  Jinja2 文案生成  |  Serper/Bing 检索  |  SQLite 记忆", color: C.green, top: 3.36, h: 0.55 },
+  { label: "DeepSeek V4 API", desc: "OpenAI 兼容 SDK  ·  动态配置  ·  用户可切换任意大模型", color: C.amber, top: 4.08, h: 0.55 },
 ];
+// Tech chips — defined first then rendered
+const techs = ["python-docx", "pdfplumber", "Jinja2", "httpx", "SQLite", "DOMPurify", "marked.js"];
+techs.forEach((t, i) => {
+  s4.addShape(pres.shapes.RECTANGLE, { x: 1.2 + i * 1.15, y: 4.75, w: 1.05, h: 0.28, fill: { color: C.white }, shadow: mkShadow() });
+  s4.addText(t, { x: 1.2 + i * 1.15, y: 4.75, w: 1.05, h: 0.28, fontSize: 9, color: C.text, align: "center", valign: "middle" });
+});
 
 layers.forEach((l) => {
   s4.addShape(pres.shapes.RECTANGLE, { x: 1.2, y: l.top, w: 7.8, h: l.h, fill: { color: l.color } });
-  s4.addText(l.label, { x: 1.4, y: l.top + 0.08, w: 3, h: 0.3, fontSize: 14, color: C.white, bold: true, margin: 0 });
-  s4.addText(l.desc, { x: 1.4, y: l.top + 0.38, w: 7.2, h: 0.25, fontSize: 10, color: C.ivory, margin: 0 });
+  s4.addText(l.label, { x: 1.4, y: l.top + 0.06, w: 3, h: 0.22, fontSize: 13, color: C.white, bold: true, margin: 0 });
+  s4.addText(l.desc, { x: 1.4, y: l.top + 0.3, w: 7.2, h: 0.2, fontSize: 9.5, color: C.ivory, margin: 0 });
 });
 
-// Data labels on right
-const techs = ["python-docx", "pdfplumber", "Jinja2", "httpx", "SQLite", "DOMPurify", "marked.js"];
-techs.forEach((t, i) => {
-  s4.addShape(pres.shapes.RECTANGLE, { x: 1.2 + i * 1.15, y: 5.75, w: 1.05, h: 0.3, fill: { color: C.white }, shadow: mkShadow() });
-  s4.addText(t, { x: 1.2 + i * 1.15, y: 5.75, w: 1.05, h: 0.3, fontSize: 9, color: C.text, align: "center", valign: "middle" });
-});
+// Data labels — rendered above
 
 // ═════════════════════════════════════════════
 // Slide 5: UI Design & Themes
@@ -166,38 +167,36 @@ s5.addText([
   { text: "拖拽上传  ·  768px 响应式断点", options: { bullet: true } },
 ], { x: 0.7, y: 1.7, w: 4.8, h: 1.4, fontSize: 11, color: C.text, lineSpacing: 22 });
 
-// 5 themes
+// 5 themes — compact horizontal row
 const themes = [
-  { name: "琥珀金", colors: ["C9953C", "1B1B1B"] },
-  { name: "极致暗黑", colors: ["FFFFFF", "0D0D0D"] },
-  { name: "纯白", colors: ["1A1A1A", "FAFAF8"] },
-  { name: "松木绿", colors: ["7CB885", "1A1F1C"] },
-  { name: "深海蓝", colors: ["7AACCC", "191D24"] },
+  { name: "琥珀金", c1: "C9953C", c2: "1B1B1B" },
+  { name: "暗黑", c1: "FFFFFF", c2: "0D0D0D" },
+  { name: "纯白", c1: "1A1A1A", c2: "FAFAF8" },
+  { name: "松木绿", c1: "7CB885", c2: "1A1F1C" },
+  { name: "深海蓝", c1: "7AACCC", c2: "191D24" },
 ];
 
-s5.addText("5 套主题", { x: 6.2, y: 1.2, w: 3.3, h: 0.3, fontSize: 14, color: C.navy, bold: true, margin: 0 });
+s5.addText("5 套主题", { x: 0.7, y: 3.4, w: 2, h: 0.3, fontSize: 14, color: C.navy, bold: true, margin: 0 });
 themes.forEach((t, i) => {
-  const ty = 1.55 + i * 0.72;
-  s5.addShape(pres.shapes.RECTANGLE, { x: 6.2, y: ty, w: 3.3, h: 0.6, fill: { color: C.white }, shadow: mkShadow() });
-  s5.addShape(pres.shapes.OVAL, { x: 6.4, y: ty + 0.1, w: 0.4, h: 0.4, fill: { color: t.colors[0] } });
-  s5.addShape(pres.shapes.OVAL, { x: 6.65, y: ty + 0.1, w: 0.4, h: 0.4, fill: { color: t.colors[1] } });
-  s5.addText(t.name, { x: 7.2, y: ty, w: 2, h: 0.6, fontSize: 12, color: C.text, valign: "middle", margin: 0 });
+  const tx = 0.7 + i * 1.85;
+  s5.addShape(pres.shapes.RECTANGLE, { x: tx, y: 3.75, w: 1.65, h: 1.0, fill: { color: C.white }, shadow: mkShadow() });
+  s5.addShape(pres.shapes.OVAL, { x: tx + 0.15, y: 3.85, w: 0.35, h: 0.35, fill: { color: t.c1 } });
+  s5.addShape(pres.shapes.OVAL, { x: tx + 0.4, y: 3.85, w: 0.35, h: 0.35, fill: { color: t.c2 } });
+  s5.addText(t.name, { x: tx, y: 4.3, w: 1.65, h: 0.35, fontSize: 10, color: C.text, align: "center", margin: 0 });
 });
 
-// Interaction details
-cardBg(s5, 0.5, 3.5, 9, 1.2);
-s5.addText("交互亮点", { x: 0.7, y: 3.6, w: 8.6, h: 0.3, fontSize: 14, color: C.navy, bold: true, margin: 0 });
+// Interaction details — moved up
+cardBg(s5, 0.5, 1.2, 5.2, 2.0);
+s5.addText("交互亮点", { x: 0.7, y: 1.3, w: 4.8, h: 0.3, fontSize: 14, color: C.navy, bold: true, margin: 0 });
 const interactions = [
   "流式打字机效果",
-  "消息悬停操作按钮（编辑·复制·下载）",
+  "消息悬停操作按钮（编辑/复制/下载）",
   "设置面板即时生效（API配置 + 主题切换）",
   "模板卡片化选择，支持自定义 Jinja2 模板",
   "强制工具选择机制，纠错模型意图判断",
 ];
 interactions.forEach((t, i) => {
-  const cx = 0.7 + (i % 3) * 3.0;
-  const cy = 3.95 + Math.floor(i / 3) * 0.35;
-  s5.addText(t, { x: cx, y: cy, w: 2.8, h: 0.3, fontSize: 10, color: C.text, bullet: true });
+  s5.addText(t, { x: 0.7, y: 1.65 + i * 0.3, w: 4.8, h: 0.27, fontSize: 10, color: C.text, bullet: true });
 });
 
 // ═════════════════════════════════════════════
@@ -311,6 +310,7 @@ s8.addText([
 s8.addText("python app.py", { x: 2.5, y: 4.5, w: 5, h: 0.6, fontSize: 24, color: C.amber, fontFace: "Consolas", bold: true, align: "center" });
 
 // ── Write ───────────────────────────────────
-pres.writeFile({ fileName: "g:/Heracles/TF/docs/OfficeAI_项目汇报.pptx" }).then(() => {
-  console.log("PPT generated: docs/OfficeAI_项目汇报.pptx");
+const outFile = "g:/Heracles/TF/docs/OfficeAI_项目汇报_v2.pptx";
+pres.writeFile({ fileName: outFile }).then(() => {
+  console.log("PPT generated: " + outFile);
 });
