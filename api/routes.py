@@ -57,14 +57,15 @@ async def upload_file(file: UploadFile = File(...), session_id: str = Form("")):
         text = await parse_document(file_path, file.filename)
         preview = text[:500]
 
-        # 持久化到 SQLite（按 session_id 存储，重启不丢失）
+        # 持久化：先确保会话存在，再写入文件内容
         if session_id:
-            from agent.memory import _db_execute
+            from agent.memory import _db_execute, MemoryManager
+            mem = MemoryManager(session_id)
+            await mem._ensure_session()
             await _db_execute(
                 "UPDATE sessions SET file_text=?, file_name=?, updated_at=? WHERE session_id=? AND active=1",
                 (text, file.filename, dt.utcnow().isoformat(), session_id),
             )
-            # 同时更新内存缓存
             session_files[session_id] = text
 
         return JSONResponse({
