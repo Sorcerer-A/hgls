@@ -424,8 +424,11 @@ async function sendMessage() {
   } catch (e) {
     if (dots.parentNode) { dots.remove(); }
     progressBar.classList.remove('show');
-    if (fullText) { setStatus('⚠️ 连接中断'); assistantDiv.innerHTML = renderMarkdown(fullText + '\n\n*（连接中断，请重试）*'); }
+    if (fullText) { assistantDiv.innerHTML = renderMarkdown(fullText + '\n\n*（连接中断，请重试）*'); }
     else { assistantDiv.innerHTML = '<span class="error">网络连接失败，请检查网络后重试。</span>'; }
+  } finally {
+    setStatus('');
+    progressBar.classList.remove('show');
   }
 }
 
