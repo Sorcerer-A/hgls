@@ -148,7 +148,9 @@ async function loadSettings() {
     document.getElementById('cfg-base').value = s.api_base || '';
     document.getElementById('cfg-key').value = s.api_key || '';
     document.getElementById('cfg-model').value = s.model || '';
-    document.querySelectorAll('.theme-dot').forEach(d => d.classList.toggle('active', d.dataset.theme === (s.theme || 'amber')));
+    document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+    const activeDot = document.querySelector(`.theme-dot[data-theme="${s.theme || 'amber'}"]`);
+    if (activeDot) activeDot.classList.add('active');
   } catch (e) { /* ignore */ }
 }
 
@@ -196,7 +198,7 @@ settingsSave.addEventListener('click', async () => {
   for (const [key, prompt] of Object.entries(templates)) {
     await fetch('/templates/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key, prompt }) });
   }
-  const theme = document.querySelector('.theme-dot.active')?.dataset?.theme || 'amber';
+  const theme = _savedSettings.theme || document.querySelector('.theme-dot.active')?.dataset?.theme || 'amber';
   const settings = {
     api_base: document.getElementById('cfg-base').value.trim(),
     api_key: document.getElementById('cfg-key').value.trim(),
@@ -224,6 +226,8 @@ themePicker.addEventListener('click', (e) => {
   if (!dot) return;
   document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
   dot.classList.add('active');
+  // 同步更新 active，防止 loadSettings 覆盖
+  _savedSettings.theme = dot.dataset.theme;
 });
 
 function applyTheme(theme) {
