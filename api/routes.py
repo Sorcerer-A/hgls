@@ -82,9 +82,37 @@ async def upload_file(file: UploadFile = File(...), session_id: str = Form("")):
 
 @router.get("/templates")
 async def list_templates():
-    """返回可用文案模板列表"""
+    """返回可用文案模板列表（含用户自定义模板内容）"""
     from config import TEMPLATES
-    return JSONResponse(TEMPLATES)
+    from agent.memory import get_settings
+    settings = await get_settings()
+    custom = settings.get("templates", {})
+    result = {}
+    for key, info in TEMPLATES.items():
+        result[key] = {**info, "prompt": custom.get(key, _load_default_template(key))}
+    return JSONResponse(result)
+
+
+@router.post("/templates/save")
+async def save_template(req: dict):
+    """保存自定义模板"""
+    from agent.memory import get_settings, save_settings
+    settings = await get_settings()
+    templates = settings.get("templates", {})
+    templates[req["key"]] = req["prompt"]
+    settings["templates"] = templates
+    await save_settings(settings)
+    return JSONResponse({"message": "模板已保存"})
+
+
+def _load_default_template(key: str) -> str:
+    """加载默认 Jinja2 模板内容"""
+    import os
+    path = f"templates/{key}.j2"
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            return f.read()
+    return ""
 
 
 @router.post("/chat")

@@ -134,7 +134,7 @@ function setStatus(text) { statusBar.textContent = text; statusBar.style.display
 
 // ── Settings ────────────────────────────────
 
-settingsBtn.addEventListener('click', () => { loadSettings(); settingsOverlay.classList.add('show'); });
+settingsBtn.addEventListener('click', () => { loadSettings(); loadTemplateEditor(); settingsOverlay.classList.add('show'); });
 settingsClose.addEventListener('click', () => settingsOverlay.classList.remove('show'));
 settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) settingsOverlay.classList.remove('show'); });
 
@@ -152,7 +152,50 @@ async function loadSettings() {
   } catch (e) { /* ignore */ }
 }
 
+// ── 模板编辑器 ──
+let _templateData = {};  // { key: { name, prompt, ... } }
+
+async function loadTemplateEditor() {
+  try {
+    const resp = await fetch('/templates');
+    _templateData = await resp.json();
+    const list = document.getElementById('tpl-editor-list');
+    list.innerHTML = '';
+    for (const [key, t] of Object.entries(_templateData)) {
+      const item = document.createElement('div');
+      item.style.cssText = 'margin-bottom:8px;';
+      item.innerHTML = `
+        <div class="tpl-edit-header" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:6px 8px;background:var(--bg);border-radius:6px;">
+          <span style="font-size:12px;font-weight:600;">${t.name}</span>
+          <span class="tpl-edit-arrow" style="font-size:10px;color:var(--text-muted)">▼</span>
+        </div>
+        <textarea class="tpl-edit-area" data-key="${key}" style="display:none;width:100%;min-height:120px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:0 0 6px 6px;padding:10px;font-family:monospace;font-size:12px;resize:vertical;">${t.prompt || ''}</textarea>
+      `;
+      item.querySelector('.tpl-edit-header').addEventListener('click', () => {
+        const area = item.querySelector('.tpl-edit-area');
+        const arrow = item.querySelector('.tpl-edit-arrow');
+        if (area.style.display === 'none') { area.style.display = 'block'; arrow.textContent = '▲'; }
+        else { area.style.display = 'none'; arrow.textContent = '▼'; }
+      });
+      list.appendChild(item);
+    }
+  } catch (e) { /* ignore */ }
+}
+
 settingsSave.addEventListener('click', async () => {
+  // 收集自定义模板
+  const templates = {};
+  document.querySelectorAll('.tpl-edit-area').forEach(area => {
+    const key = area.dataset.key;
+    const prompt = area.value.trim();
+    if (prompt && prompt !== (_templateData[key]?.prompt || '')) {
+      templates[key] = prompt;
+    }
+  });
+  // 保存模板
+  for (const [key, prompt] of Object.entries(templates)) {
+    await fetch('/templates/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key, prompt }) });
+  }
   const theme = document.querySelector('.theme-dot.active')?.dataset?.theme || 'amber';
   const settings = {
     api_base: document.getElementById('cfg-base').value.trim(),

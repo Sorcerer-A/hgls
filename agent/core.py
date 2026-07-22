@@ -94,10 +94,14 @@ async def chat_with_tools(
 
     # ── 读取用户自定义 API 配置 ──
     from agent.memory import get_settings
+    from tools.doc_generator import set_custom_template
     user_settings = await get_settings()
     api_key = user_settings.get("api_key") or DEEPSEEK_API_KEY
     api_base = user_settings.get("api_base") or DEEPSEEK_BASE_URL
     api_model = user_settings.get("model") or DEEPSEEK_MODEL
+    # 注入自定义模板
+    for key, prompt in user_settings.get("templates", {}).items():
+        set_custom_template(key, prompt)
 
     # ── 模板卡片消息转换 ──
     if message.startswith("template_key:"):

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OfficeAI 助手</title>
-<link rel="stylesheet" href="/static/style.css?v=10">
+<link rel="stylesheet" href="/static/style.css?v=11">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 </head>
@@ -73,6 +73,10 @@
         <div class="theme-dot" data-theme="ocean" style="background:linear-gradient(135deg,#7aaccc,#191d24)" title="深海蓝"></div>
       </div>
     </div>
+    <div class="settings-section">
+      <h4>文案生成模板 <span style="font-weight:400;font-size:11px;color:var(--text-muted)">— 点击展开编辑</span></h4>
+      <div id="tpl-editor-list"></div>
+    </div>
     <div id="settings-actions">
       <button id="settings-close">取消</button>
       <button id="settings-save">保存设置</button>
@@ -80,6 +84,6 @@
   </div>
 </div>
 
-<script src="/static/app.js?v=10"></script>
+<script src="/static/app.js?v=11"></script>
 </body>
 </html>
