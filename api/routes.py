@@ -57,16 +57,17 @@ async def upload_file(file: UploadFile = File(...), session_id: str = Form("")):
         text = await parse_document(file_path, file.filename)
         preview = text[:500]
 
-        # 持久化：先确保会话存在，再写入文件内容
+        # 持久化：确保会话存在并写入文件内容
         if session_id:
             from agent.memory import _db_execute, MemoryManager
             mem = MemoryManager(session_id)
             await mem._ensure_session()
-            await _db_execute(
+            result = await _db_execute(
                 "UPDATE sessions SET file_text=?, file_name=?, updated_at=? WHERE session_id=? AND active=1",
                 (text, file.filename, dt.utcnow().isoformat(), session_id),
             )
-            session_files[session_id] = text
+            logger.info(f"文件持久化: session={session_id[:8]}..., file={file.filename}, rows_updated={result.rowcount}")
+        session_files[session_id] = text if session_id else session_files.pop(session_id, None)
 
         return JSONResponse({
             "filename": file.filename,
