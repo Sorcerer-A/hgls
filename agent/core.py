@@ -146,6 +146,21 @@ async def chat_with_tools(
         timeout=REQUEST_TIMEOUT,
     )
 
+    # ── 注入已上传文件的上下文 ──
+    file_text = session_files.get(session_id, "")
+    file_name = ""
+    if not file_text:
+        from agent.memory import _db_fetchone
+        row = await _db_fetchone("SELECT file_text, file_name FROM sessions WHERE session_id=? AND active=1 AND file_text!=''", (session_id,))
+        if row and row[0]:
+            file_text = row[0]
+            file_name = row[1] or ""
+            session_files[session_id] = file_text
+
+    # 文件内容注入到用户消息（而非 system prompt），按需携带
+    if file_text and (force_tool == "doc_summary" or any(kw in message for kw in ["总结", "文档", "报告", "文件", "摘要", "这份", "这个"])):
+        message = f"[已上传文件「{file_name}」内容如下]\n{file_text}\n[文件结束]\n\n用户问题：{message}"
+
     messages = [{"role": "system", "content": system_prompt}]
     messages.extend(history)
     messages.append({"role": "user", "content": message})
