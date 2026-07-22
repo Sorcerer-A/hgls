@@ -41,22 +41,62 @@ function addMessage(role, text) {
   const div = document.createElement('div');
   div.className = `message ${role}`;
   div.innerHTML = renderMarkdown(text);
+  div.dataset.rawText = text;  // 保存原始纯文本用于编辑
   wrapper.appendChild(div);
+
   if (role === 'assistant' && text) {
     const btnGroup = document.createElement('div');
     btnGroup.className = 'msg-btns';
+    // 编辑按钮
+    const editBtn = document.createElement('button');
+    editBtn.className = 'copy-btn'; editBtn.textContent = '✏️'; editBtn.title = '编辑';
+    editBtn.onclick = () => enterEditMode(div, wrapper);
+    // 复制按钮
     const copyBtn = document.createElement('button');
     copyBtn.className = 'copy-btn'; copyBtn.textContent = '📋'; copyBtn.title = '复制';
-    copyBtn.onclick = () => { navigator.clipboard.writeText(text).then(() => { copyBtn.textContent = '✅'; setTimeout(() => copyBtn.textContent = '📋', 2000); }).catch(() => { copyBtn.textContent = '❌'; }); };
+    copyBtn.onclick = () => { navigator.clipboard.writeText(div.dataset.rawText || text).then(() => { copyBtn.textContent = '✅'; setTimeout(() => copyBtn.textContent = '📋', 2000); }).catch(() => { copyBtn.textContent = '❌'; }); };
+    // 下载按钮
     const downloadBtn = document.createElement('button');
     downloadBtn.className = 'copy-btn'; downloadBtn.textContent = '⬇️'; downloadBtn.title = '下载 .md';
-    downloadBtn.onclick = () => { const blob = new Blob([text], { type: 'text/markdown' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `officeai-${new Date().toISOString().slice(0,10)}.md`; a.click(); URL.revokeObjectURL(url); };
-    btnGroup.appendChild(copyBtn); btnGroup.appendChild(downloadBtn);
+    downloadBtn.onclick = () => { const t = div.dataset.rawText || text; const blob = new Blob([t], { type: 'text/markdown' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `officeai-${new Date().toISOString().slice(0,10)}.md`; a.click(); URL.revokeObjectURL(url); };
+    btnGroup.appendChild(editBtn);
+    btnGroup.appendChild(copyBtn);
+    btnGroup.appendChild(downloadBtn);
     wrapper.appendChild(btnGroup);
   }
   messagesEl.appendChild(wrapper);
   messagesEl.scrollTop = messagesEl.scrollHeight;
   return div;
+}
+
+// ── 编辑模式 ──
+function enterEditMode(div, wrapper) {
+  const rawText = div.dataset.rawText || div.textContent;
+  const textarea = document.createElement('textarea');
+  textarea.value = rawText;
+  textarea.style.cssText = 'width:100%;min-height:120px;background:var(--bg);color:var(--text);border:1px solid var(--accent);border-radius:8px;padding:10px;font-family:inherit;font-size:13px;line-height:1.6;resize:vertical;';
+  div.replaceWith(textarea);
+
+  // 编辑工具栏
+  const toolbar = document.createElement('div');
+  toolbar.style.cssText = 'display:flex;gap:6px;margin-top:6px;';
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = '✅ 保存'; saveBtn.className = 'copy-btn';
+  saveBtn.style.cssText = 'padding:4px 10px;background:var(--accent);color:var(--bg);border:none;border-radius:4px;cursor:pointer;font-weight:600;';
+  saveBtn.onclick = () => {
+    const newText = textarea.value;
+    div.dataset.rawText = newText;
+    div.innerHTML = renderMarkdown(newText);
+    textarea.replaceWith(div);
+    toolbar.remove();
+  };
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = '取消'; cancelBtn.className = 'copy-btn';
+  cancelBtn.onclick = () => { textarea.replaceWith(div); toolbar.remove(); };
+  toolbar.appendChild(saveBtn);
+  toolbar.appendChild(cancelBtn);
+  textarea.after(toolbar);
+  textarea.focus();
 }
 
 function setStatus(text) { statusBar.textContent = text; statusBar.style.display = text ? 'block' : 'none'; }
