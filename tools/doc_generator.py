@@ -1,7 +1,7 @@
 from __future__ import annotations
 import logging
 from pathlib import Path
-from jinja2 import Environment, BaseLoader, Template
+from jinja2 import Environment, BaseLoader, FileSystemLoader, Template
 
 logger = logging.getLogger(__name__)
 
