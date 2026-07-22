@@ -120,6 +120,12 @@ async def chat_with_tools(
     if force_tool == "doc_summary":
         has_file = session_id in session_files and session_files[session_id]
         if not has_file:
+            from agent.memory import _db_fetchone
+            row = await _db_fetchone("SELECT file_text FROM sessions WHERE session_id=? AND active=1 AND file_text!=''", (session_id,))
+            if row and row[0]:
+                has_file = True
+                session_files[session_id] = row[0]
+        if not has_file:
             yield f"data: {json.dumps({'content': '请先上传需要总结的文档，然后再发起总结请求。'}, ensure_ascii=False)}\n\n"
             yield "data: [DONE]\n\n"
             return
