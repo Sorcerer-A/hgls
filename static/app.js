@@ -9,6 +9,7 @@ const messagesEl = document.getElementById('messages');
 const inputEl = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 const newChatBtn = document.getElementById('new-chat-btn');
+const clearChatBtn = document.getElementById('clear-chat-btn');
 const toolBtns = document.querySelectorAll('.tool-btn');
 const fileInput = document.getElementById('file-input');
 const uploadBtn = document.getElementById('upload-btn');
@@ -160,6 +161,7 @@ function clearTemplate() {
 }
 
 // ── Tool Switching ──────────────────────────
+let toolShown = {}; // 每个模式只提示一次，避免刷屏
 
 toolBtns.forEach(btn => {
   btn.addEventListener('click', () => {
@@ -171,27 +173,35 @@ toolBtns.forEach(btn => {
     tplInfo.classList.remove('show');
     inputEl.placeholder = '输入消息... (Enter 发送, Shift+Enter 换行)';
 
-    if (currentTool === 'doc_summary') {
+    if (!currentTool) {
+      setStatus('💬 自由对话模式');
+      if (!toolShown['free']) { addMessage('assistant', '可直接对话，或切换左侧功能使用文档总结、文案生成、联网检索。'); toolShown['free'] = true; }
+    } else if (currentTool === 'doc_summary') {
       if (uploadedFilename) {
         setStatus('📄 文档总结模式 — 已上传: ' + uploadedFilename);
-        addMessage('assistant', '**📄 文档总结模式**\n\n已上传文件：**' + uploadedFilename + '**\n\n直接输入你的问题即可，如"请总结这份文档"。');
+        if (!toolShown['doc_summary']) { addMessage('assistant', '**📄 文档总结模式**\n\n已上传：**' + uploadedFilename + '**，直接输入问题即可。'); toolShown['doc_summary'] = true; }
       } else {
         setStatus('📄 文档总结模式 — 请先上传文件');
-        addMessage('assistant', '**📄 文档总结模式**\n\n请先在左侧上传需要总结的文档（支持 .txt / .docx / .md / .pdf）。');
+        if (!toolShown['doc_summary']) { addMessage('assistant', '**📄 文档总结模式**\n\n请先上传文档，然后告诉我需要总结的内容。'); toolShown['doc_summary'] = true; }
       }
     } else if (currentTool === 'doc_generate') {
-      setStatus('📝 文案生成模式 — 点击模板卡片选择');
+      setStatus('📝 文案生成模式 — 点击模板卡片');
       loadTemplateCards();
       tplCards.classList.add('show');
-      addMessage('assistant', '**📝 文案生成模式**\n\n请点击左侧模板卡片选择类型，然后输入关键信息。');
+      if (!toolShown['doc_generate']) { addMessage('assistant', '**📝 文案生成模式**\n\n请点击左侧模板卡片，然后输入关键信息。'); toolShown['doc_generate'] = true; }
     } else if (currentTool === 'web_search') {
       setStatus('🔍 联网检索模式');
-      addMessage('assistant', '**🔍 联网检索模式**\n\n直接输入你想搜索的内容，我会实时检索并整合回答。');
-    } else {
-      setStatus('');
-      addMessage('assistant', '**💬 自由对话模式**\n\n可直接对话，或切换左侧功能使用文档总结、文案生成、联网检索。');
+      if (!toolShown['web_search']) { addMessage('assistant', '**🔍 联网检索模式**\n\n直接输入搜索内容，我会实时检索并整合回答。'); toolShown['web_search'] = true; }
     }
   });
+});
+
+// ── Clear Chat ──────────────────────────────
+
+clearChatBtn.addEventListener('click', () => {
+  messagesEl.innerHTML = '';
+  toolShown = {};
+  addMessage('assistant', '聊天记录已清除。继续输入消息即可。');
 });
 
 // ── File Upload ─────────────────────────────
