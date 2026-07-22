@@ -15,6 +15,7 @@ const fileInput = document.getElementById('file-input');
 const uploadBtn = document.getElementById('upload-btn');
 const fileStatus = document.getElementById('file-status');
 const statusBar = document.getElementById('status-bar');
+const progressBar = document.getElementById('progress-bar');
 const tplInfo = document.getElementById('tpl-info');
 const tplCards = document.getElementById('template-cards');
 const settingsBtn = document.getElementById('settings-btn');
@@ -372,7 +373,14 @@ async function sendMessage() {
     tool = 'doc_generate';
   }
 
+  // 等待动效：typing dots + 进度条 + 状态文字
   const assistantDiv = addMessage('assistant', '');
+  const dots = document.createElement('div');
+  dots.className = 'typing-indicator';
+  dots.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+  assistantDiv.appendChild(dots);
+  progressBar.classList.add('show');
+  setStatus('思考中...');
   let fullText = '';
 
   try {
@@ -395,16 +403,27 @@ async function sendMessage() {
       for (const line of lines) {
         if (!line.startsWith('data: ')) continue;
         const raw = line.slice(6);
-        if (raw === '[DONE]') { setStatus(''); return; }
+        if (raw === '[DONE]') { setStatus(''); progressBar.classList.remove('show'); return; }
         try {
           const parsed = JSON.parse(raw);
           if (parsed.error) { assistantDiv.innerHTML = `<span class="error">${parsed.error}</span>`; return; }
-          if (parsed.status) { setStatus(parsed.status); }
-          if (parsed.content) { fullText += parsed.content; assistantDiv.innerHTML = renderMarkdown(fullText); }
+          if (parsed.status) {
+            setStatus('⚡ ' + parsed.status);
+            // 首次收到内容时移除等待动效
+            if (dots.parentNode) { dots.remove(); progressBar.classList.remove('show'); }
+          }
+          if (parsed.content) {
+            if (dots.parentNode) { dots.remove(); progressBar.classList.remove('show'); }
+            fullText += parsed.content;
+            assistantDiv.innerHTML = renderMarkdown(fullText);
+            setStatus('正在输出...');
+          }
         } catch (e) { /* skip */ }
       }
     }
   } catch (e) {
+    if (dots.parentNode) { dots.remove(); }
+    progressBar.classList.remove('show');
     if (fullText) { setStatus('⚠️ 连接中断'); assistantDiv.innerHTML = renderMarkdown(fullText + '\n\n*（连接中断，请重试）*'); }
     else { assistantDiv.innerHTML = '<span class="error">网络连接失败，请检查网络后重试。</span>'; }
   }
